@@ -1,0 +1,53 @@
+# OS-specific files
+.DS_Store
+Thumbs.db
+
+# Build output directories
+build/
+Builds/
+bin/
+obj/
+out/
+
+# JUCE-generated builds for different IDEs
+*.jucer
+*.sln
+*.vcxproj
+*.vcxproj.filters
+*.xcodeproj/
+*.xcworkspace/
+*.cbp
+
+# Compiler intermediate files
+*.o
+*.obj
+*.pch
+*.pdb
+*.idb
+*.exe
+*.dll
+*.so
+*.dylib
+*.app
+*.lib
+*.a
+
+# Logs and caches
+*.log
+*.tmp
+*.cache
+
+# User-specific IDE settings
+.vscode/
+.idea/
+*.user
+*.userprefs
+
+# CMake
+CMakeFiles/
+CMakeCache.txt
+cmake-build-*/
+
+# Other temp files
+*.swp
+*.swo
