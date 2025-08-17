@@ -4,6 +4,10 @@
 #include "DJAudioPlayer.h"
 #include "WaveformDisplay.h"
 
+
+// avoid circular include errors
+class PlaylistComponent;
+
 //==============================================================================
 /*
 */
@@ -11,7 +15,8 @@ class DeckGUI  : public juce::Component,
                  public juce::Button::Listener, 
                  public juce::Slider::Listener,
                  public juce::FileDragAndDropTarget,
-                 public juce::Timer
+                 public juce::Timer,
+                 public juce::ChangeListener
 {
 public:
     DeckGUI(DJAudioPlayer* player, 
@@ -35,6 +40,15 @@ public:
     // timer
     void timerCallback() override;
 
+    // change listener to subscribe to player
+    void changeListenerCallback(juce::ChangeBroadcaster* source) override;
+
+    // show file waveform
+    void showWaveForm(juce::URL url);
+
+    // allow MainComponent to hook this deck to playlist
+    void setPlaylist(PlaylistComponent* p) { playlist = p; };
+
 
 private:
     juce::TextButton playButton{ "PLAY" };
@@ -51,7 +65,7 @@ private:
 
     juce::FileChooser fChooser{ "Select a file..." };
 
-
+    PlaylistComponent* playlist{ nullptr };
 
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (DeckGUI)

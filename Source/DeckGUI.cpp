@@ -10,6 +10,8 @@
 
 #include <JuceHeader.h>
 #include "DeckGUI.h"
+#include "PlaylistComponent.h"
+
 
 //==============================================================================
 DeckGUI::DeckGUI(DJAudioPlayer* _player,
@@ -41,13 +43,25 @@ DeckGUI::DeckGUI(DJAudioPlayer* _player,
     speedSlider.setRange(0.0, 10.0);
     posSlider.setRange(0.0, 1.0);
 
+    // listen for player load events
+    if (player != nullptr)
+    {
+        player->addChangeListener(this);
+    }
+
     // 500 milliseconds: half a second
     startTimer(500);
+
 }
 
 DeckGUI::~DeckGUI()
 {
     stopTimer();
+
+    if (player != nullptr)
+    {
+        player->removeChangeListener(this);
+    }
 }
 
 void DeckGUI::paint (juce::Graphics& g)
@@ -83,27 +97,41 @@ void DeckGUI::resized()
 
 void DeckGUI::buttonClicked(juce::Button* button)
 {
-    if (button == &playButton) 
-    {
-        player->start();
-    }
-    if (button == &stopButton) 
-    {
-        player->stop();
-    }
+    if (button == &playButton) { player->start(); }
+    if (button == &stopButton) {  player->stop(); }
     if (button == &loadButton) 
     {
-        // https://docs.juce.com/master/classFileChooser.html#ac888983e4abdd8401ba7d6124ae64ff3
-        // - configure the dialogue
-        auto fileChooserFlags = juce::FileBrowserComponent::canSelectFiles;
-        // - launch out of the main thread
-        fChooser.launchAsync(fileChooserFlags, [this](const juce::FileChooser& chooser)
+        //// https://docs.juce.com/master/classFileChooser.html#ac888983e4abdd8401ba7d6124ae64ff3
+        //// - configure the dialogue
+        //auto fileChooserFlags = juce::FileBrowserComponent::canSelectFiles;
+        //// - launch out of the main thread
+        //fChooser.launchAsync(fileChooserFlags, [this](const juce::FileChooser& chooser)
+        //    {
+        //        juce::File chosenFile = chooser.getResult();
+        //        player->loadURL(juce::URL{ chosenFile });
+        //        waveformDisplay.loadURL(juce::URL{ chosenFile });
+        //    }
+        //);
+
+        auto flags = juce::FileBrowserComponent::openMode | juce::FileBrowserComponent::canSelectFiles | juce::FileBrowserComponent::canSelectMultipleItems;
+
+        fChooser.launchAsync(flags, [this](const juce::FileChooser& fc)
             {
-                juce::File chosenFile = chooser.getResult();
-                player->loadURL(juce::URL{ chosenFile });
-                waveformDisplay.loadURL(juce::URL{ chosenFile });
-            }
-        );
+                auto files = fc.getResults();
+                // add to decks playlist
+                if (playlist != nullptr)
+                {
+                    playlist->addFiles(files);
+
+                    // preview first selected
+                    if (files.size() > 0)
+                    {
+                        juce::URL first{ files[0] };
+                        player->loadURL(first);
+                        waveformDisplay.loadURL(first);
+                    }
+                }
+            });
     }
 }
 
@@ -142,4 +170,24 @@ void DeckGUI::filesDropped(const juce::StringArray& files, int x, int y)
 void DeckGUI::timerCallback()
 {
     waveformDisplay.setPositionRelative(player->getPositionRelative());
+}
+
+void DeckGUI::changeListenerCallback(juce::ChangeBroadcaster* source)
+{
+    if (source == player)
+    {
+        auto url = player->getCurrentURL();
+
+        if (url.isEmpty())
+        {
+            return;
+        }
+
+        waveformDisplay.loadURL(url);
+    }
+}
+
+void DeckGUI::showWaveForm(juce::URL url)
+{
+    waveformDisplay.loadURL(url);
 }

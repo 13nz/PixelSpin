@@ -50,6 +50,11 @@ void DJAudioPlayer::loadURL(juce::URL audioURL)
         // pass into transport source
         transportSource.setSource(newSource.get(), 0, nullptr, reader->sampleRate);
         readerSource.reset(newSource.release());
+
+        currentURL = audioURL;
+
+        // notify listeners of new URL
+        sendChangeMessage();
     }
 }
 
@@ -91,6 +96,14 @@ void DJAudioPlayer::stop()
 
 double DJAudioPlayer::getPositionRelative()
 {
-    return transportSource.getCurrentPosition() / transportSource.getLengthInSeconds();
+    const double len = transportSource.getLengthInSeconds();
+    if (len <= 0.0) return 0.0;
+
+    return transportSource.getCurrentPosition() / len;
+}
+
+bool DJAudioPlayer::isPlaying() const
+{
+    return transportSource.isPlaying();
 }
     

@@ -2,8 +2,7 @@
 
 #include <JuceHeader.h>
 
-
-class DJAudioPlayer : public juce::AudioSource 
+class DJAudioPlayer : public juce::AudioSource, public juce::ChangeBroadcaster
 {
 public:
     DJAudioPlayer(juce::AudioFormatManager& _formatManager);
@@ -25,6 +24,12 @@ public:
     // get the relative position of the playhead
     double getPositionRelative();
 
+    // exposed lates URL
+    juce::URL getCurrentURL() const { return currentURL; }
+
+    // check if music is playing
+    bool isPlaying() const;
+
 private:
     // audio & playback
     juce::AudioFormatManager& formatManager;
@@ -32,5 +37,7 @@ private:
     juce::AudioTransportSource transportSource;
 
     juce::ResamplingAudioSource resampleSource{ &transportSource, false, 2 };
+
+    juce::URL currentURL;
 
 };
