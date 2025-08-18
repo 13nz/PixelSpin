@@ -5,6 +5,8 @@
 #include "DeckGUI.h"
 #include "PlaylistComponent.h"
 #include "VinylSpinner.h"
+#include "CustomLookAndFeel.h"
+
 
 //==============================================================================
 /*
@@ -30,6 +32,9 @@ public:
 
     // combo box for vinyls
     void comboBoxChanged(juce::ComboBox* box) override;
+
+    // theme
+    CustomLookAndFeel custLnF;
 
 
 private:
@@ -66,6 +71,9 @@ private:
     void setSpinnerImageFromIndex(bool left, int index);
     static juce::Image tryLoadImage(const juce::File& f);
     static juce::File getVinylsFolder();
+
+
+
 
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (MainComponent)

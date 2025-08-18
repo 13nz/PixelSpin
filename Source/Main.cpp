@@ -6,8 +6,10 @@
   ==============================================================================
 */
 
+
 #include <JuceHeader.h>
 #include "MainComponent.h"
+
 
 //==============================================================================
 class OtoDecksApplication  : public juce::JUCEApplication
@@ -64,8 +66,13 @@ public:
                                                           .findColour (juce::ResizableWindow::backgroundColourId),
                               DocumentWindow::allButtons)
         {
-            setUsingNativeTitleBar (true);
-            setContentOwned (new MainComponent(), true);
+            auto* mainContent = new MainComponent();
+
+            // applly custom look & feel
+            setLookAndFeel(&mainContent->custLnF);
+
+            setUsingNativeTitleBar(false);
+            setContentOwned(mainContent, true);
 
            #if JUCE_IOS || JUCE_ANDROID
             setFullScreen (true);
@@ -74,7 +81,24 @@ public:
             centreWithSize (getWidth(), getHeight());
            #endif
 
+
             setVisible (true);
+        }
+
+        // custom title bar
+        void paintOverChildren(juce::Graphics& g) override
+        {
+            // custom title bar background
+            g.setColour(juce::Colour::fromString("#6e51c8")); // your dark purple
+            g.fillRect(0, 0, getWidth(), 30); // height of custom bar
+
+            // title text
+            g.setColour(juce::Colour::fromString("#eac4ae"));
+            g.setFont(juce::Font(16.0f, juce::Font::bold));
+            g.drawText(getName(),
+                10, 0, getWidth(), 30,
+                juce::Justification::centredLeft,
+                true);
         }
 
         void closeButtonPressed() override

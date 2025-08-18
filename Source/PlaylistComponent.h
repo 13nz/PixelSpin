@@ -2,6 +2,7 @@
 
 #include <JuceHeader.h>
 #include <vector>
+#include "PixelButton.h"
 
 // to avoid circular include
 class DJAudioPlayer;
@@ -74,7 +75,8 @@ private:
     void playRow(int row);
 
     juce::String formatSeconds(double totalSeconds) const;
-    juce::TextButton clearButton{ "CLEAR" };
+    //juce::TextButton clearButton{ "CLEAR" };
+    PixelButton clearButton;
 
     DJAudioPlayer& player;
     DeckGUI& deckGUI; // for waveform only

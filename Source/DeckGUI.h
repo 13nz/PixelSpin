@@ -3,6 +3,7 @@
 #include <JuceHeader.h>
 #include "DJAudioPlayer.h"
 #include "WaveformDisplay.h"
+#include "PixelButton.h"
 
 
 // avoid circular include errors
@@ -51,10 +52,6 @@ public:
 
 
 private:
-    juce::TextButton playButton{ "PLAY" };
-    juce::TextButton stopButton{ "STOP" };
-    juce::TextButton loadButton{ "LOAD" };
-
     juce::Slider volSlider;
     juce::Slider speedSlider;
     juce::Slider posSlider;
@@ -66,6 +63,11 @@ private:
     juce::FileChooser fChooser{ "Select a file..." };
 
     PlaylistComponent* playlist{ nullptr };
+
+    // pixel buttons
+    PixelButton playButton;
+    PixelButton stopButton;
+    PixelButton loadButton;
 
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (DeckGUI)

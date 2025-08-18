@@ -46,7 +46,7 @@ void VinylSpinner::paint(juce::Graphics& g)
     const int cx = compW / 2;
     const int cy = compH / 2;
 
-    // Build transform:
+    // build transform:
     // move image center to origin
     // scale by integer factor (no interpolation)
     // rotate around origin

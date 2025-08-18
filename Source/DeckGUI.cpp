@@ -11,6 +11,7 @@
 #include <JuceHeader.h>
 #include "DeckGUI.h"
 #include "PlaylistComponent.h"
+#include "Theme.h"
 
 
 //==============================================================================
@@ -20,6 +21,15 @@ DeckGUI::DeckGUI(DJAudioPlayer* _player,
                 : player(_player),
                   waveformDisplay(formatManagerToUse, cacheToUse)
 {
+    // hide text for pixel art buttons
+    playButton.setButtonText({});
+    stopButton.setButtonText({});
+    loadButton.setButtonText({});
+
+    bool okPlay = playButton.setImagesFromBaseName("play");   // looks in Assets/Buttons
+    bool okStop = stopButton.setImagesFromBaseName("stop");
+    bool okLoad = loadButton.setImagesFromBaseName("load");
+
     addAndMakeVisible(playButton);
     addAndMakeVisible(stopButton);
     addAndMakeVisible(loadButton);
@@ -42,6 +52,8 @@ DeckGUI::DeckGUI(DJAudioPlayer* _player,
     volSlider.setRange(0.0, 1.0);
     speedSlider.setRange(0.0, 10.0);
     posSlider.setRange(0.0, 1.0);
+
+    volSlider.setValue(0.5);
 
     // listen for player load events
     if (player != nullptr)
@@ -66,34 +78,32 @@ DeckGUI::~DeckGUI()
 
 void DeckGUI::paint (juce::Graphics& g)
 {
-    g.fillAll (getLookAndFeel().findColour (juce::ResizableWindow::backgroundColourId));   // clear the background
-
-    g.setColour (juce::Colours::grey);
-    g.drawRect (getLocalBounds(), 1);   // draw an outline around the component
-
-    g.setColour (juce::Colours::white);
-    g.setFont (juce::FontOptions (14.0f));
-    g.drawText ("DeckGUI", getLocalBounds(),
-                juce::Justification::centred, true);   // draw some placeholder text
+    g.fillAll(Theme::panelBg);
+    g.setColour(Theme::panelOutline());
+    g.drawRect(getLocalBounds(), 1);
 }
 
 void DeckGUI::resized()
 {
-    // declare common sizes
-    double rowHeight = getHeight() / 8;
+    auto r = getLocalBounds().reduced(8);
 
-    // set x & y positions
-    playButton.setBounds(0, 0, getWidth(), rowHeight);
-    stopButton.setBounds(0, rowHeight, getWidth(), rowHeight);
+    // top row for buttons
+    auto top = r.removeFromTop(60);
+    const int sz = top.getHeight();
+    playButton.setBounds(top.removeFromLeft(sz));
+    top.removeFromLeft(8);
+    stopButton.setBounds(top.removeFromLeft(sz));
+    top.removeFromLeft(8);
+    loadButton.setBounds(top.removeFromLeft(sz));
 
-    volSlider.setBounds(0, rowHeight * 2, getWidth(), rowHeight);
-    speedSlider.setBounds(0, rowHeight * 3, getWidth(), rowHeight);
-    posSlider.setBounds(0, rowHeight * 4, getWidth(), rowHeight);
-
-    waveformDisplay.setBounds(0, rowHeight * 5, getWidth(), rowHeight * 2);
-
-    loadButton.setBounds(0, rowHeight * 7, getWidth(), rowHeight);
+    // now lay out sliders & waveform only
+    const int rowH = r.getHeight() / 5; // adjust as you like
+    volSlider.setBounds(r.removeFromTop(rowH));
+    speedSlider.setBounds(r.removeFromTop(rowH));
+    posSlider.setBounds(r.removeFromTop(rowH));
+    waveformDisplay.setBounds(r); // whatever remains
 }
+
 
 void DeckGUI::buttonClicked(juce::Button* button)
 {
@@ -101,18 +111,6 @@ void DeckGUI::buttonClicked(juce::Button* button)
     if (button == &stopButton) {  player->stop(); }
     if (button == &loadButton) 
     {
-        //// https://docs.juce.com/master/classFileChooser.html#ac888983e4abdd8401ba7d6124ae64ff3
-        //// - configure the dialogue
-        //auto fileChooserFlags = juce::FileBrowserComponent::canSelectFiles;
-        //// - launch out of the main thread
-        //fChooser.launchAsync(fileChooserFlags, [this](const juce::FileChooser& chooser)
-        //    {
-        //        juce::File chosenFile = chooser.getResult();
-        //        player->loadURL(juce::URL{ chosenFile });
-        //        waveformDisplay.loadURL(juce::URL{ chosenFile });
-        //    }
-        //);
-
         auto flags = juce::FileBrowserComponent::openMode | juce::FileBrowserComponent::canSelectFiles | juce::FileBrowserComponent::canSelectMultipleItems;
 
         fChooser.launchAsync(flags, [this](const juce::FileChooser& fc)

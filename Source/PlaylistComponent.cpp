@@ -12,6 +12,7 @@
 #include "PlaylistComponent.h"
 #include "DJAudioPlayer.h"
 #include "DeckGUI.h"
+#include "Theme.h"
 
 
 //==============================================================================
@@ -25,6 +26,9 @@ PlaylistComponent::PlaylistComponent(DJAudioPlayer& targetPlayer, DeckGUI& targe
 
     // set model on table component
     tableComponent.setModel(this);
+    clearButton.setButtonText({});
+
+    clearButton.setImagesFromBaseName("clear");
 
     addAndMakeVisible(clearButton);
     clearButton.addListener(this);
@@ -51,12 +55,16 @@ void PlaylistComponent::paint (juce::Graphics& g)
 
 void PlaylistComponent::resized()
 {
-    //tableComponent.setBounds(0, 0, getWidth(), getHeight());
     auto r = getLocalBounds();
-    auto top = r.removeFromTop(32);
-    clearButton.setBounds(top.removeFromLeft(80));  // << give ADD a place
+
+    // top bar for controls
+    auto top = r.removeFromTop(40);     // adjust height to taste
+    const int sz = top.getHeight();     // square keeps pixel art crisp
+    clearButton.setBounds(top.removeFromLeft(sz).reduced(4));
+
     tableComponent.setBounds(r);
 }
+
 
 int PlaylistComponent::getNumRows()
 {
@@ -71,14 +79,10 @@ void PlaylistComponent::paintRowBackground(
     bool rowIsSelected
 )
 {
-    if (rowIsSelected)
-    {
-        g.fillAll(juce::Colours::orange);
-    }
-    else
-    {
-        g.fillAll(juce::Colours::darkgrey);
-    }
+    g.fillAll(rowIsSelected ? Theme::accent.withAlpha(0.22f)
+        : Theme::panelBg);
+    g.setColour(Theme::panelOutline());
+    g.drawLine(0.f, (float)height - 0.5f, (float)width, (float)height - 0.5f);
 }
 
 void PlaylistComponent::paintCell(
@@ -108,6 +112,9 @@ void PlaylistComponent::paintCell(
     {
         g.drawText(text, 2, 0, width - 4, height, juce::Justification::centredLeft, true);
     }
+
+    g.setColour(Theme::textOnDarkMain);
+    g.drawText(text, 6, 0, width - 12, height, juce::Justification::centredLeft, true);
 
 }
 

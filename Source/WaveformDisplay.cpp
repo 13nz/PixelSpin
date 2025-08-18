@@ -10,6 +10,7 @@
 
 #include <JuceHeader.h>
 #include "WaveformDisplay.h"
+#include "Theme.h"
 
 //==============================================================================
 WaveformDisplay::WaveformDisplay(juce::AudioFormatManager& formatManagerToUse,
@@ -19,6 +20,7 @@ WaveformDisplay::WaveformDisplay(juce::AudioFormatManager& formatManagerToUse,
                                    position(0)
 {
     audioThumb.addChangeListener(this);
+
 }
 
 WaveformDisplay::~WaveformDisplay()
@@ -29,15 +31,15 @@ void WaveformDisplay::paint (juce::Graphics& g)
 {
     g.fillAll (getLookAndFeel().findColour (juce::ResizableWindow::backgroundColourId));   // clear the background
 
-    g.setColour (juce::Colours::grey);
+    g.setColour (Theme::panelBg);
     g.drawRect (getLocalBounds(), 1);   // draw an outline around the component
 
-    g.setColour (juce::Colours::orange);
+    g.setColour (Theme::trackBase);
 
     if (fileLoaded) 
     {
         audioThumb.drawChannel(g, getLocalBounds(), 0, audioThumb.getTotalLength(), 0, 1.0);
-        g.setColour(juce::Colours::lightgreen);
+        g.setColour(Theme::accent);
         g.drawRect(position * getWidth(), 0, getWidth() / 20, getHeight());
     }
     else 

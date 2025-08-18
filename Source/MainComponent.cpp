@@ -3,7 +3,16 @@
 //==============================================================================
 MainComponent::MainComponent()
 {
+    // set custom theme
+    juce::LookAndFeel::setDefaultLookAndFeel(&custLnF);
+    // set slider images
+    custLnF.setSliderThumbImagesFromBasename("thumb");
+    custLnF.setSliderThumbPixels(28);
+
+
     setSize (1280, 800);
+
+
 
     // Some platforms require permissions to open input channels so request that here
     if (juce::RuntimePermissions::isRequired (juce::RuntimePermissions::recordAudio)
@@ -59,6 +68,8 @@ MainComponent::~MainComponent()
     playlistComponent2.saveLibrary();
     // This shuts down the audio device and clears the audio source.
     shutdownAudio();
+    // remove theme
+    juce::LookAndFeel::setDefaultLookAndFeel(nullptr);
 }
 
 //==============================================================================
@@ -229,11 +240,11 @@ void MainComponent::comboBoxChanged(juce::ComboBox* box)
 
 juce::File MainComponent::getVinylsFolder()
 {
-    // Start at the executable directory (…/Builds/.../App)
+    // Start at the executable directory 
     juce::File dir = juce::File::getSpecialLocation(juce::File::currentExecutableFile)
         .getParentDirectory();
 
-    // Walk up to 10 levels and look for Assets/Vinyls
+    // walk up to 10 levels and look for Assets/Vinyls
     for (int i = 0; i < 10; ++i)
     {
         auto candidate = dir.getChildFile("Assets").getChildFile("Vinyls");
@@ -242,7 +253,7 @@ juce::File MainComponent::getVinylsFolder()
         dir = dir.getParentDirectory();
     }
 
-    // Dev fallback if launching from project root
+    // fallback if launching from project root
     dir = juce::File::getCurrentWorkingDirectory()
         .getChildFile("Assets").getChildFile("Vinyls");
     if (dir.isDirectory())
