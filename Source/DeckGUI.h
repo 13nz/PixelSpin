@@ -4,6 +4,7 @@
 #include "DJAudioPlayer.h"
 #include "WaveformDisplay.h"
 #include "PixelButton.h"
+#include "VinylSpinner.h"
 
 
 // avoid circular include errors
@@ -17,7 +18,8 @@ class DeckGUI  : public juce::Component,
                  public juce::Slider::Listener,
                  public juce::FileDragAndDropTarget,
                  public juce::Timer,
-                 public juce::ChangeListener
+                 public juce::ChangeListener,
+                 public juce::ComboBox::Listener
 {
 public:
     DeckGUI(DJAudioPlayer* player, 
@@ -50,6 +52,13 @@ public:
     // allow MainComponent to hook this deck to playlist
     void setPlaylist(PlaylistComponent* p) { playlist = p; };
 
+    // let MainComponent wire playlist actions to this deck:
+    std::function<void()> onClearRequested;
+
+
+    // combo change (vinyl)
+    void comboBoxChanged(juce::ComboBox* box) override;
+
 
 private:
     juce::Slider volSlider;
@@ -64,10 +73,25 @@ private:
 
     PlaylistComponent* playlist{ nullptr };
 
+    // row component for buttons
+    juce::Component buttonRow;
+
     // pixel buttons
     PixelButton playButton;
     PixelButton stopButton;
     PixelButton loadButton;
+    PixelButton clearButton;
+
+    // vinyl per deck
+    VinylSpinner vinyl;                
+    juce::ComboBox vinylSelect;        
+    juce::StringArray vinylNames;
+    juce::Array<juce::File> vinylFiles;
+
+    void scanVinylAssets();
+    static juce::File getVinylsFolder();
+    static juce::Image tryLoadImage(const juce::File& f);
+    void setVinylFromIndex(int idx);
 
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (DeckGUI)

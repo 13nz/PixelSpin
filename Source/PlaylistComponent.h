@@ -59,6 +59,9 @@ public:
     void saveLibrary() const;
     void loadLibrary();
 
+    // clear playlist
+    void clearAll();
+
 private:
     juce::TableListBox tableComponent;
     //std::vector<std::string> trackTitles;
@@ -75,7 +78,6 @@ private:
     void playRow(int row);
 
     juce::String formatSeconds(double totalSeconds) const;
-    //juce::TextButton clearButton{ "CLEAR" };
     PixelButton clearButton;
 
     DJAudioPlayer& player;

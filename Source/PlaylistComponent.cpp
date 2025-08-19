@@ -26,12 +26,6 @@ PlaylistComponent::PlaylistComponent(DJAudioPlayer& targetPlayer, DeckGUI& targe
 
     // set model on table component
     tableComponent.setModel(this);
-    clearButton.setButtonText({});
-
-    clearButton.setImagesFromBaseName("clear");
-
-    addAndMakeVisible(clearButton);
-    clearButton.addListener(this);
 
     addAndMakeVisible(tableComponent);
 }
@@ -58,10 +52,13 @@ void PlaylistComponent::resized()
     auto r = getLocalBounds();
 
     // top bar for controls
-    auto top = r.removeFromTop(40);     // adjust height to taste
-    const int sz = top.getHeight();     // square keeps pixel art crisp
-    clearButton.setBounds(top.removeFromLeft(sz).reduced(4));
+    //auto top = r.removeFromTop(40);     // adjust height to taste
+    //const int sz = top.getHeight();     // square keeps pixel art crisp
+    //clearButton.setBounds(top.removeFromLeft(sz).reduced(4));
 
+    //tableComponent.setBounds(r);
+    // 
+    // was: a top bar + table; now: just the table fills everything
     tableComponent.setBounds(r);
 }
 
@@ -136,25 +133,8 @@ juce::Component* PlaylistComponent::refreshComponentForCell(int rowNumber, int c
 
 void PlaylistComponent::buttonClicked(juce::Button* button)
 {
-
-    if (button == &clearButton)
-    {
-        tracks.clear();
-        tableComponent.updateContent();
-        repaint();
-        return;
-    }
-
-    int id = std::stoi(button->getComponentID().toStdString());
-
     const int row = button->getComponentID().getIntValue();
-
-    if (row >= 0 && row < (int)tracks.size())
-    {
-        juce::URL url{ tracks[(size_t)row].file };
-        player.loadURL(url);
-        deckGUI.showWaveForm(url);
-    }
+    playRow(row);
 
 }
 
@@ -317,4 +297,13 @@ juce::File PlaylistComponent::getLibraryFile() const
     const juce::String filename = juce::String("library_") + playlistId + ".json";
 
     return dir.getChildFile(filename);
+}
+
+// clear playlist (called by DeckGUI)
+void PlaylistComponent::clearAll()   
+{
+    tracks.clear();
+    tableComponent.updateContent();
+    repaint();
+    saveLibrary();  
 }

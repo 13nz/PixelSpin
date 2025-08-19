@@ -4,6 +4,8 @@
               addUsingNamespaceToJuceHeader="0" jucerFormatVersion="1">
   <MAINGROUP id="QRBohZ" name="OtoDecks">
     <GROUP id="{BE5854E4-E8B7-34AD-0657-467F1C6CC4BF}" name="Source">
+      <FILE id="y5ej2H" name="EffectsDeck.cpp" compile="1" resource="0" file="Source/EffectsDeck.cpp"/>
+      <FILE id="IrHvxE" name="EffectsDeck.h" compile="0" resource="0" file="Source/EffectsDeck.h"/>
       <FILE id="AYKIyp" name="icon.png" compile="0" resource="1" file="Source/icon.png"/>
       <FILE id="aLk9Xv" name="icon.ico" compile="0" resource="1" file="Source/icon.ico"/>
       <FILE id="sQNZKb" name="PixelButton.cpp" compile="1" resource="0" file="Source/PixelButton.cpp"/>

@@ -13,8 +13,7 @@
     This component lives inside our window, and this is where you should put all
     your controls and content.
 */
-class MainComponent  : public juce::AudioAppComponent,
-                       public juce::ComboBox::Listener
+class MainComponent  : public juce::AudioAppComponent
 {
 public:
     //==============================================================================
@@ -30,11 +29,10 @@ public:
     void paint (juce::Graphics& g) override;
     void resized() override;
 
-    // combo box for vinyls
-    void comboBoxChanged(juce::ComboBox* box) override;
 
     // theme
     CustomLookAndFeel custLnF;
+
 
 
 private:
@@ -56,21 +54,21 @@ private:
     PlaylistComponent playlistComponent1{ player1, deckGUI1, formatManager, "1"};
     PlaylistComponent playlistComponent2{ player2, deckGUI2, formatManager, "2"};
 
-    // vinyl spinners
-    VinylSpinner vinyl1{ &player1, 33.333 };
-    VinylSpinner vinyl2{ &player2, 33.333 };
+    //// vinyl spinners
+    //VinylSpinner vinyl1{ &player1, 33.333 };
+    //VinylSpinner vinyl2{ &player2, 33.333 };
 
-    // vinyl selection
-    juce::ComboBox vinylSelectLeft;
-    juce::ComboBox vinylSelectRight;
+    //// vinyl selection
+    //juce::ComboBox vinylSelectLeft;
+    //juce::ComboBox vinylSelectRight;
 
-    juce::StringArray vinylOptions;
-    juce::Array<juce::File> vinylFiles;
+    //juce::StringArray vinylOptions;
+    //juce::Array<juce::File> vinylFiles;
 
-    void scanVinylAssets();
-    void setSpinnerImageFromIndex(bool left, int index);
-    static juce::Image tryLoadImage(const juce::File& f);
-    static juce::File getVinylsFolder();
+    //void scanVinylAssets();
+    //void setSpinnerImageFromIndex(bool left, int index);
+    //static juce::Image tryLoadImage(const juce::File& f);
+    //static juce::File getVinylsFolder();
 
 
 

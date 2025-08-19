@@ -52,8 +52,6 @@ CustomLookAndFeel::CustomLookAndFeel()
     // scrollbar track outline
     setColour(juce::ScrollBar::trackColourId, Theme::controlFill);
 
-    // title bar
-
 
 
 }
@@ -258,7 +256,10 @@ static juce::Image loadImg(const juce::String& base, const juce::String& state)
 {
     auto f = findTitleButtonFolder().getChildFile(base + state + ".png");
 
-    if (auto in = f.createInputStream()) return juce::ImageFileFormat::loadFrom(*in);
+    if (auto in = f.createInputStream())
+    {
+        return juce::ImageFileFormat::loadFrom(*in);
+    }
 
     return {};
 }
