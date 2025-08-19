@@ -10,11 +10,11 @@ MainComponent::MainComponent()
     custLnF.setSliderThumbPixels(28);
 
 
-    setSize(1280, 800);
+    setSize(1600, 900);
 
 
 
-    // Some platforms require permissions to open input channels so request that here
+    // permissions to open input channels request
     if (juce::RuntimePermissions::isRequired(juce::RuntimePermissions::recordAudio)
         && !juce::RuntimePermissions::isGranted(juce::RuntimePermissions::recordAudio))
     {
@@ -23,7 +23,7 @@ MainComponent::MainComponent()
     }
     else
     {
-        // Specify the number of input and output channels that we want to open
+        // number of input and output channels  to open
         setAudioChannels(2, 2);
     }
 
@@ -51,7 +51,7 @@ MainComponent::~MainComponent()
     // save library
     playlistComponent1.saveLibrary();
     playlistComponent2.saveLibrary();
-    // This shuts down the audio device and clears the audio source.
+    // shuts down the audio device and clears the audio source.
     shutdownAudio();
     // remove theme
     juce::LookAndFeel::setDefaultLookAndFeel(nullptr);

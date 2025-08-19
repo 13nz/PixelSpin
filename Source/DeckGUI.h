@@ -5,6 +5,7 @@
 #include "WaveformDisplay.h"
 #include "PixelButton.h"
 #include "VinylSpinner.h"
+#include "PixelKnob.h"
 
 
 // avoid circular include errors
@@ -92,6 +93,18 @@ private:
     static juce::File getVinylsFolder();
     static juce::Image tryLoadImage(const juce::File& f);
     void setVinylFromIndex(int idx);
+
+    // effects knobs
+    PixelKnob reverbKnob{ "knob" };
+    PixelKnob chorusKnob{ "knob" };
+    PixelKnob compressionKnob{ "knob" };
+    PixelKnob lofiKnob{ "knob" };
+
+    // slider labels
+    juce::Label volLabel, speedLabel, posLabel;
+
+    // knob labels
+    juce::Label reverbLabel, chorusLabel, compressionLabel, lofiLabel;
 
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (DeckGUI)

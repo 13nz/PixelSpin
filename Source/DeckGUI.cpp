@@ -1,4 +1,4 @@
-/*
+﻿/*
   ==============================================================================
 
     DeckGUI.cpp
@@ -60,6 +60,11 @@ DeckGUI::DeckGUI(DJAudioPlayer* _player,
     speedSlider.addListener(this);
     posSlider.addListener(this);
 
+    // hide slider text boxes
+    volSlider.setTextBoxStyle(juce::Slider::NoTextBox, false, 0, 0);
+    speedSlider.setTextBoxStyle(juce::Slider::NoTextBox, false, 0, 0);
+    posSlider.setTextBoxStyle(juce::Slider::NoTextBox, false, 0, 0);
+
     volSlider.setRange(0.0, 1.0);
     speedSlider.setRange(0.0, 10.0);
     posSlider.setRange(0.0, 1.0);
@@ -78,6 +83,53 @@ DeckGUI::DeckGUI(DJAudioPlayer* _player,
     {
         player->addChangeListener(this);
     }
+
+    // effect knobs
+    addAndMakeVisible(reverbKnob);
+    addAndMakeVisible(chorusKnob);
+    addAndMakeVisible(compressionKnob);
+    addAndMakeVisible(lofiKnob);
+
+    // slider labels
+    // volume 
+    volLabel.setText("Vol", juce::dontSendNotification);
+    volLabel.setJustificationType(juce::Justification::centredRight);
+    addAndMakeVisible(volLabel);
+
+    // speed 
+    speedLabel.setText("Speed", juce::dontSendNotification);
+    speedLabel.setJustificationType(juce::Justification::centredRight);
+    addAndMakeVisible(speedLabel);
+
+    // position 
+    posLabel.setText("Pos", juce::dontSendNotification);
+    posLabel.setJustificationType(juce::Justification::centredRight);
+    addAndMakeVisible(posLabel);
+
+    // knob labels
+    // Reverb
+    reverbLabel.setText("Reverb", juce::dontSendNotification);
+    reverbLabel.setJustificationType(juce::Justification::centred);
+    reverbLabel.setInterceptsMouseClicks(false, false);
+    addAndMakeVisible(reverbLabel);
+
+    // Chorus
+    chorusLabel.setText("Chorus", juce::dontSendNotification);
+    chorusLabel.setJustificationType(juce::Justification::centred);
+    chorusLabel.setInterceptsMouseClicks(false, false);
+    addAndMakeVisible(chorusLabel);
+
+    // Compression
+    compressionLabel.setText("Compression", juce::dontSendNotification);
+    compressionLabel.setJustificationType(juce::Justification::centred);
+    compressionLabel.setInterceptsMouseClicks(false, false);
+    addAndMakeVisible(compressionLabel);
+
+    // Lo‑Fi
+    lofiLabel.setText("LoFi", juce::dontSendNotification);
+    lofiLabel.setJustificationType(juce::Justification::centred);
+    lofiLabel.setInterceptsMouseClicks(false, false);
+    addAndMakeVisible(lofiLabel);
 
     // 500 milliseconds: half a second
     startTimer(500);
@@ -101,50 +153,95 @@ void DeckGUI::paint (juce::Graphics& g)
     g.drawRect(getLocalBounds(), 1);
 }
 
+
+
+
+
 void DeckGUI::resized()
 {
+    using juce::roundToInt;
     auto r = getLocalBounds().reduced(8);
 
-    // waveform
-    auto waveformH = juce::jmax(40, juce::roundToInt(getHeight() * 0.15f));
-    waveformDisplay.setBounds(r.removeFromTop(waveformH));
+    // 1) Waveform at the top
+    const int waveH = juce::jmax(48, roundToInt(getHeight() * 0.14f));
+    waveformDisplay.setBounds(r.removeFromTop(waveH));
 
-    // buttons & sliders
-    const int btnRowH = 32;   
-    const int sliderH = 26;   
-    const int sliderGap = 6;
+    // 2) Vinyl dropdown
+    const int dropH = 24;
+    vinylSelect.setBounds(r.removeFromTop(dropH).reduced(2));
 
-    auto btnRow = r.removeFromBottom(btnRowH).reduced(2);
-    auto sliders = r.removeFromBottom(sliderH * 3 + sliderGap * 2).reduced(2);
+    // 3) Main vinyl area
+    auto vinylArea = r.removeFromTop(roundToInt(getHeight() * 0.55f)).reduced(6);
 
-    // sliders stacked
-    auto one = juce::Rectangle<int>(sliders.getX(), sliders.getY(), sliders.getWidth(), sliderH);
-    volSlider.setBounds(one);                    sliders = sliders.withTrimmedTop(sliderH + sliderGap);
-    speedSlider.setBounds(one.withY(sliders.getY())); sliders = sliders.withTrimmedTop(sliderH + sliderGap);
-    posSlider.setBounds(one.withY(sliders.getY()));
+    // Reserve side strips for knobs
+    const int knobSz = 80;        // knob size
+    const int knobGap = 12;
+    const int knobColW = knobSz + 2 * knobGap;
 
-    // 3 vinyl in middle
-    auto vinylArea = r.reduced(6);
+    auto leftCol = vinylArea.removeFromLeft(knobColW);
+    auto rightCol = vinylArea.removeFromRight(knobColW);
+
+    // Place vinyl in the remaining center
     const int side = std::min(vinylArea.getWidth(), vinylArea.getHeight());
     vinyl.setBounds(juce::Rectangle<int>(0, 0, side, side).withCentre(vinylArea.getCentre()));
 
-    // dropdown above vinyl spinner
-    auto dropH = 28;
-    auto drop = vinylArea.removeFromTop(dropH);
-    vinylSelect.setBounds(drop.reduced(2));
+    // knobs vertically next to vinyl
+    auto kbLeft = juce::Rectangle<int>(0, 0, knobSz, knobSz).withCentre(leftCol.getCentre());
+    reverbKnob.setBounds(kbLeft.translated(0, -knobSz - knobGap));
+    reverbLabel.setBounds(reverbKnob.getBounds().withY(reverbKnob.getBottom()).withHeight(16));
+    chorusKnob.setBounds(kbLeft.translated(0, knobSz + knobGap));
+    chorusLabel.setBounds(chorusKnob.getBounds().withY(chorusKnob.getBottom()).withHeight(16));
 
-    // button row
-    const int gap = 6;
-    const int btnSz = btnRow.getHeight();  // square buttons, crisp scaling
-    auto row = btnRow;
+    auto kbRight = juce::Rectangle<int>(0, 0, knobSz, knobSz).withCentre(rightCol.getCentre());
+    compressionKnob.setBounds(kbRight.translated(0, -knobSz - knobGap));
+    compressionLabel.setBounds(compressionKnob.getBounds().withY(compressionKnob.getBottom()).withHeight(16));
+    lofiKnob.setBounds(kbRight.translated(0, knobSz + knobGap));
+    lofiLabel.setBounds(lofiKnob.getBounds().withY(lofiKnob.getBottom()).withHeight(16));
 
-    playButton.setBounds(row.removeFromLeft(btnSz));
-    row.removeFromLeft(gap);
-    stopButton.setBounds(row.removeFromLeft(btnSz));
-    row.removeFromLeft(gap);
-    loadButton.setBounds(row.removeFromLeft(btnSz));
-    row.removeFromLeft(gap);
-    clearButton.setBounds(row.removeFromLeft(btnSz));
+    // sliders row
+    // 4) Sliders row
+    const int labelW = 50;    // width reserved for labels
+    const int sliderH = 16;
+    const int sliderGap = 6;
+
+    auto slidersArea = r.removeFromTop(sliderH * 3 + sliderGap * 2).reduced(2);
+
+    {
+        auto row = slidersArea.removeFromTop(sliderH);
+        volLabel.setBounds(row.removeFromLeft(labelW));
+        volSlider.setBounds(row);
+    }
+    slidersArea.removeFromTop(sliderGap);
+
+    {
+        auto row = slidersArea.removeFromTop(sliderH);
+        speedLabel.setBounds(row.removeFromLeft(labelW));
+        speedSlider.setBounds(row);
+    }
+    slidersArea.removeFromTop(sliderGap);
+
+    {
+        auto row = slidersArea.removeFromTop(sliderH);
+        posLabel.setBounds(row.removeFromLeft(labelW));
+        posSlider.setBounds(row);
+    }
+
+
+    // gap below sliders
+    r.removeFromTop(12); 
+
+    // buttons row 
+    const int btnRowH = 32;
+    auto btnRow = r.removeFromTop(btnRowH);
+    const int btnSz = btnRow.getHeight();
+
+    playButton.setBounds(btnRow.removeFromLeft(btnSz));
+    btnRow.removeFromLeft(knobGap);
+    stopButton.setBounds(btnRow.removeFromLeft(btnSz));
+    btnRow.removeFromLeft(knobGap);
+    loadButton.setBounds(btnRow.removeFromLeft(btnSz));
+    btnRow.removeFromLeft(knobGap);
+    clearButton.setBounds(btnRow.removeFromLeft(btnSz));
 }
 
 
