@@ -98,13 +98,13 @@ private:
     PixelKnob reverbKnob{ "knob" };
     PixelKnob chorusKnob{ "knob" };
     PixelKnob compressionKnob{ "knob" };
-    PixelKnob lofiKnob{ "knob" };
+    PixelKnob delayKnob{ "knob" };
 
     // slider labels
     juce::Label volLabel, speedLabel, posLabel;
 
     // knob labels
-    juce::Label reverbLabel, chorusLabel, compressionLabel, lofiLabel;
+    juce::Label reverbLabel, chorusLabel, compressionLabel, delayLabel;
 
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (DeckGUI)

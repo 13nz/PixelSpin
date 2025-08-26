@@ -1,6 +1,7 @@
 #pragma once
 
 #include <JuceHeader.h>
+#include "EffectsDeck.h"
 
 class DJAudioPlayer : public juce::AudioSource, public juce::ChangeBroadcaster
 {
@@ -30,6 +31,22 @@ public:
     // check if music is playing
     bool isPlaying() const;
 
+    // effects
+    // reverb
+    void setReverbAmount(float wet01) { effects.setReverbAmount(wet01); }
+
+    // chorus
+    void setChorusAmount(float amt01) { effects.setChorusAmount(amt01); }
+
+    // compression
+    void setCompressionAmount(float amt01) { effects.setCompressionAmount(amt01); }
+
+    // delay
+    void setDelayAmount(float amt01) { effects.setDelayAmount(amt01); }
+
+
+
+
 private:
     // audio & playback
     juce::AudioFormatManager& formatManager;
@@ -40,4 +57,7 @@ private:
 
     juce::URL currentURL;
 
+    // effect deck
+    // handles all effects and don't have to processs each individually
+    EffectsDeck effects;
 };

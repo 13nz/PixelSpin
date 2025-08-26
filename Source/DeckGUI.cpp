@@ -66,10 +66,12 @@ DeckGUI::DeckGUI(DJAudioPlayer* _player,
     posSlider.setTextBoxStyle(juce::Slider::NoTextBox, false, 0, 0);
 
     volSlider.setRange(0.0, 1.0);
-    speedSlider.setRange(0.0, 10.0);
+    speedSlider.setRange(0.0, 2.0);
     posSlider.setRange(0.0, 1.0);
 
+    // default values
     volSlider.setValue(0.5);
+    speedSlider.setValue(1.0);
 
     // vinyl UI
     addAndMakeVisible(vinyl);
@@ -88,7 +90,7 @@ DeckGUI::DeckGUI(DJAudioPlayer* _player,
     addAndMakeVisible(reverbKnob);
     addAndMakeVisible(chorusKnob);
     addAndMakeVisible(compressionKnob);
-    addAndMakeVisible(lofiKnob);
+    addAndMakeVisible(delayKnob);
 
     // slider labels
     // volume 
@@ -126,10 +128,39 @@ DeckGUI::DeckGUI(DJAudioPlayer* _player,
     addAndMakeVisible(compressionLabel);
 
     // Lo‑Fi
-    lofiLabel.setText("LoFi", juce::dontSendNotification);
-    lofiLabel.setJustificationType(juce::Justification::centred);
-    lofiLabel.setInterceptsMouseClicks(false, false);
-    addAndMakeVisible(lofiLabel);
+    delayLabel.setText("Delay", juce::dontSendNotification);
+    delayLabel.setJustificationType(juce::Justification::centred);
+    delayLabel.setInterceptsMouseClicks(false, false);
+    addAndMakeVisible(delayLabel);
+
+    // knob functionality
+    // reverb
+    reverbKnob.onValueChange = [this](int step)
+        {
+            if (player != nullptr)
+                player->setReverbAmount(step / 6.0f); // 7 positions for knobs
+        };
+
+    // chorus
+    chorusKnob.onValueChange = [this](int step)
+        {
+            if (player != nullptr)
+                player->setChorusAmount(step / 6.0f); // 0..6 → 0..1
+        };
+
+    // compression
+    compressionKnob.onValueChange = [this](int step)
+        {
+            if (player != nullptr)
+                player->setCompressionAmount(step / 6.0f); // 0..6 → 0..1
+        };
+
+    // delay
+    delayKnob.onValueChange = [this](int step)
+        {
+            if (player != nullptr)
+                player->setDelayAmount(step / 6.0f); // 0..6 → 0..1
+        };
 
     // 500 milliseconds: half a second
     startTimer(500);
@@ -195,8 +226,8 @@ void DeckGUI::resized()
     auto kbRight = juce::Rectangle<int>(0, 0, knobSz, knobSz).withCentre(rightCol.getCentre());
     compressionKnob.setBounds(kbRight.translated(0, -knobSz - knobGap));
     compressionLabel.setBounds(compressionKnob.getBounds().withY(compressionKnob.getBottom()).withHeight(16));
-    lofiKnob.setBounds(kbRight.translated(0, knobSz + knobGap));
-    lofiLabel.setBounds(lofiKnob.getBounds().withY(lofiKnob.getBottom()).withHeight(16));
+    delayKnob.setBounds(kbRight.translated(0, knobSz + knobGap));
+    delayLabel.setBounds(delayKnob.getBounds().withY(delayKnob.getBottom()).withHeight(16));
 
     // sliders row
     // 4) Sliders row
