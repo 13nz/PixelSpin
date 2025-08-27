@@ -51,14 +51,6 @@ void PlaylistComponent::resized()
 {
     auto r = getLocalBounds();
 
-    // top bar for controls
-    //auto top = r.removeFromTop(40);     // adjust height to taste
-    //const int sz = top.getHeight();     // square keeps pixel art crisp
-    //clearButton.setBounds(top.removeFromLeft(sz).reduced(4));
-
-    //tableComponent.setBounds(r);
-    // 
-    // was: a top bar + table; now: just the table fills everything
     tableComponent.setBounds(r);
 }
 

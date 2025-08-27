@@ -132,12 +132,11 @@ void EffectsDeck::setChorusAmount(float amt01)
     amt01 = juce::jlimit(0.0f, 1.0f, amt01);
     chorusMix = amt01;
 
-    // Safer, smoother ranges:
-    const float rateHz = 0.15f + 0.95f * amt01;   // 0.15 .. 1.10 Hz (slow/chorus-y, not vibrato)
+    const float rateHz = 0.15f + 0.95f * amt01;   // 0.15 .. 1.10 Hz (slow)
     const float depth = 0.12f + 0.38f * amt01;   // 0.12 .. 0.50 (moderate)
-    const float centreDelay = 8.0f + 10.0f * amt01;   // 8 .. 18 ms (keeps it chorus, not flange)
-    const float feedback = 0.00f + 0.08f * amt01;   // 0 .. 0.08 (tiny, avoids metallic ring)
-    const float mix = 0.08f + 0.35f * amt01;   // 8% .. 43% (audible but not overwhelming)
+    const float centreDelay = 8.0f + 10.0f * amt01;   // 8 .. 18 ms (chorus, not flange)
+    const float feedback = 0.00f + 0.08f * amt01;   // 0 .. 0.08 (tiny)
+    const float mix = 0.08f + 0.35f * amt01;   // 8% .. 43% (audible)
 
     chorus.setRate(rateHz);
     chorus.setDepth(depth);
@@ -153,8 +152,8 @@ void EffectsDeck::setCompressionAmount(float amt01)
     amt01 = juce::jlimit(0.0f, 1.0f, amt01);
 
     // map knob amount to compressor params
-    const float threshold = -6.0f - 24.0f * amt01; // -6 dB .. -30 dB
-    const float ratio = 1.0f + 9.0f * amt01;  // 1:1 .. 10:1
+    const float threshold = -6.0f - 24.0f * amt01; 
+    const float ratio = 1.0f + 9.0f * amt01; 
 
     compressor.setThreshold(threshold);
     compressor.setRatio(ratio);
@@ -167,10 +166,6 @@ void EffectsDeck::setDelayAmount(float amt01)
 {
     amt01 = juce::jlimit(0.0f, 1.0f, amt01);
 
-    // Musical, safe ranges:
-    // Time:   90 .. 450 ms (slap → echo)
-    // Mix:     0 .. 0.55   (keeps source clear)
-    // FB:      0 .. 0.45   (several repeats, avoids runaway)
     delayTimeMs = 90.0f + 360.0f * amt01;
     delayMix = 0.00f + 0.55f * amt01;
     delayFeedback = 0.00f + 0.45f * amt01;

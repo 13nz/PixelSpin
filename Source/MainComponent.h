@@ -6,6 +6,7 @@
 #include "PlaylistComponent.h"
 #include "VinylSpinner.h"
 #include "CustomLookAndFeel.h"
+#include "SampleAudioSource.h"
 
 
 //==============================================================================
@@ -33,12 +34,11 @@ public:
     // theme
     CustomLookAndFeel custLnF;
 
+    // for pads
+    void triggerPad(const juce::String& id) { sampleBank.trigger(id, 1.0f); }
 
 
 private:
-    //==============================================================================
-    // Your private member variables go here...
-
     juce::AudioFormatManager formatManager;
     juce::AudioThumbnailCache thumbCache{ 100 };
 
@@ -54,24 +54,13 @@ private:
     PlaylistComponent playlistComponent1{ player1, deckGUI1, formatManager, "1"};
     PlaylistComponent playlistComponent2{ player2, deckGUI2, formatManager, "2"};
 
-    //// vinyl spinners
-    //VinylSpinner vinyl1{ &player1, 33.333 };
-    //VinylSpinner vinyl2{ &player2, 33.333 };
+    SampleAudioSource sampleBank;
 
-    //// vinyl selection
-    //juce::ComboBox vinylSelectLeft;
-    //juce::ComboBox vinylSelectRight;
+    // mixing
+    MixerStrip mixerStrip;         
 
-    //juce::StringArray vinylOptions;
-    //juce::Array<juce::File> vinylFiles;
-
-    //void scanVinylAssets();
-    //void setSpinnerImageFromIndex(bool left, int index);
-    //static juce::Image tryLoadImage(const juce::File& f);
-    //static juce::File getVinylsFolder();
-
-
-
+    // crossfade helper
+    void applyCrossfade(float x);  
 
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (MainComponent)

@@ -2,13 +2,14 @@
 
 #include <JuceHeader.h>
 #include "EffectsDeck.h"
+#include "MixerStrip.h"
 
 class DJAudioPlayer : public juce::AudioSource, public juce::ChangeBroadcaster
 {
 public:
     DJAudioPlayer(juce::AudioFormatManager& _formatManager);
     ~DJAudioPlayer();
-    //==============================================================================
+
     void prepareToPlay(int samplesPerBlockExpected, double sampleRate) override;
     void getNextAudioBlock(const juce::AudioSourceChannelInfo& bufferToFill) override;
     void releaseResources() override;
@@ -31,7 +32,8 @@ public:
     // check if music is playing
     bool isPlaying() const;
 
-    // effects
+    // EFFECTS
+    
     // reverb
     void setReverbAmount(float wet01) { effects.setReverbAmount(wet01); }
 
@@ -44,7 +46,9 @@ public:
     // delay
     void setDelayAmount(float amt01) { effects.setDelayAmount(amt01); }
 
-
+    // exporting methods
+    double getPositionSeconds() const;
+    double getTrackLengthSeconds() const;
 
 
 private:

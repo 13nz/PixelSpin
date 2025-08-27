@@ -89,7 +89,7 @@ public:
         void paintOverChildren(juce::Graphics& g) override
         {
             // custom title bar background
-            g.setColour(juce::Colour::fromString("#6e51c8")); // your dark purple
+            g.setColour(juce::Colour::fromString("#6e51c8")); // dark purple
             g.fillRect(0, 0, getWidth(), 30); // height of custom bar
 
             // title text

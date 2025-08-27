@@ -57,15 +57,14 @@ void PixelKnob::loadFramesFromFolder(const juce::File& folder)
     if (!folder.isDirectory())
         return;
 
-    // We know the filenames are prefix_0 ... prefix_6 (e.g. knob_0.png .. knob_6.png)
-    // Try them in order and add any valid images we find.
+    // filenames are knob_0 ... knob_6 
     for (int i = 0; i <= 6; ++i)
     {
         auto fname = prefix + "_" + juce::String(i) + ".png";
         auto f = folder.getChildFile(fname);
 
         if (!f.existsAsFile())
-            continue; // skip missing frames (still fine)
+            continue; // skip missing frames
 
         if (auto in = f.createInputStream())
         {
@@ -75,7 +74,7 @@ void PixelKnob::loadFramesFromFolder(const juce::File& folder)
         }
     }
 
-    // if nothing found, frames stays empty (paint() draws a fallback)
+    // if nothing found frames stays empty
     if (frames.size() == 0)
     {
         currentPosition = 0;
@@ -129,10 +128,10 @@ void PixelKnob::paint(juce::Graphics& g)
 
     const juce::Image& img = frames.getReference(currentPosition);
 
-    // Use nearest/low-quality resampling for crisp pixel art
+    // nearest/low-quality resampling for crisp pixel art
     g.setImageResamplingQuality(juce::Graphics::lowResamplingQuality);
 
-    // Draw the image centered and aspect-fitted into dest
+    // centered and aspect fitted
     g.drawImageWithin(img,
         dest.getX(), dest.getY(),
         dest.getWidth(), dest.getHeight(),
@@ -149,9 +148,10 @@ void PixelKnob::mouseDown(const juce::MouseEvent& e)
 
     if (clickSteps && e.mods.isLeftButtonDown() && e.mods.isAnyModifierKeyDown() == false)
     {
-        // simple click: cycle forward by 1
-        // (if you prefer click-to-cycle without modifiers, remove the modifier check)
         setPosition(currentPosition + 1);
+
+        step = (step + 1) % (int)frames.size();
+        repaint();
     }
 }
 
@@ -199,4 +199,16 @@ juce::File PixelKnob::findKnobsFolder()
         return cwd;
 
     return {};
+}
+
+// getters/setters
+int PixelKnob::getStep() const 
+{
+    return step;
+}
+
+void PixelKnob::setStep(int newStep)
+{
+    step = juce::jlimit(0, (int)frames.size() - 1, newStep);
+    repaint();
 }

@@ -11,7 +11,7 @@
 #include <JuceHeader.h>
 #include "PixelButton.h"
 
-juce::File PixelButton::defaultButtonsFolder; // empty until first use
+juce::File PixelButton::defaultButtonsFolder; // empty until use
 
 PixelButton::PixelButton(const juce::String& name) : juce::Button(name) {}
 
@@ -19,6 +19,7 @@ PixelButton::~PixelButton()
 {
 }
 
+// set images
 void PixelButton::setImages(juce::Image defaultImg,
                             juce::Image hoverImg,
                             juce::Image pressedImg)
@@ -38,6 +39,7 @@ void PixelButton::paintButton(juce::Graphics& g, bool isHover, bool isPressed)
         drawCrisp(g, img, getWidth(), getHeight(), 0.0);
 }
 
+// draws pixel art not blurry
 void PixelButton::drawCrisp(juce::Graphics& g, const juce::Image& img, int compW, int compH, double angle)
 {
     const int imgW = img.getWidth();
@@ -45,7 +47,7 @@ void PixelButton::drawCrisp(juce::Graphics& g, const juce::Image& img, int compW
 
     if (imgW <= 0 || imgH <= 0 || compW <= 0 || compH <= 0) return;
 
-    // keep square & centered to fit target
+    // square & centered
     const int target = std::min(compW, compH);
     const int maxDim = std::max(imgW, imgH);
 
@@ -131,7 +133,7 @@ juce::File PixelButton::getDefaultButtonsFolder()
 
 juce::File PixelButton::findButtonsFolder()
 {
-    // go up from the executable looking for Assets/Buttons
+    // go up from the executable to Assets/Buttons
     auto dir = juce::File::getSpecialLocation(juce::File::currentExecutableFile).getParentDirectory();
 
     for (int i = 0; i < 10; ++i)
@@ -149,16 +151,8 @@ juce::File PixelButton::findButtonsFolder()
     if (cwd.isDirectory())
         return cwd;
 
-//#if JUCE_MAC
-//    // 3) macOS bundle Resources/Assets/Buttons (optional)
-//    auto res = juce::File::getSpecialLocation(juce::File::currentExecutableFile)
-//        .getParentDirectory().getParentDirectory().getChildFile("Resources")
-//        .getChildFile("Assets").getChildFile("Buttons");
-//    if (res.isDirectory())
-//        return res;
-//#endif
 
-    return {}; // not found (callers handle gracefully)
+    return {}; 
 }
 
 juce::Image PixelButton::loadImageFromButtons(const juce::String& filename)

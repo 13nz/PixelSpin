@@ -15,23 +15,23 @@
 //==============================================================================
 CustomLookAndFeel::CustomLookAndFeel()
 {
-    // Surfaces
+    // backgrounds
     setColour(juce::ResizableWindow::backgroundColourId, Theme::windowBg);
     setColour(juce::PopupMenu::backgroundColourId, Theme::panelBg);
 
-    // Text defaults
+    // text
     setColour(juce::Label::textColourId, Theme::textOnDarkMain);
 
-    // Buttons (light on dark)
+    // buttons
     setColour(juce::TextButton::buttonColourId, Theme::controlFill);
     setColour(juce::TextButton::textColourOnId, Theme::textOnLight);
     setColour(juce::TextButton::textColourOffId, Theme::textOnLight);
 
-    // Sliders
+    // sliders
     setColour(juce::Slider::trackColourId, Theme::trackBase);
     setColour(juce::Slider::thumbColourId, Theme::accent);
 
-    // Combo / text inputs (light controls on dark panels)
+    // comno inputs
     setColour(juce::ComboBox::backgroundColourId, Theme::controlFill);
     setColour(juce::ComboBox::textColourId, Theme::textOnLight);
     setColour(juce::ComboBox::outlineColourId, Theme::panelOutline());
@@ -39,7 +39,7 @@ CustomLookAndFeel::CustomLookAndFeel()
     setColour(juce::TextEditor::textColourId, Theme::textOnLight);
     setColour(juce::CaretComponent::caretColourId, Theme::accent);
 
-    // Tables / lists
+    // tbale / list
     setColour(juce::TableHeaderComponent::backgroundColourId, Theme::panelBg);
     setColour(juce::TableHeaderComponent::textColourId, Theme::textOnDarkMain);
     setColour(juce::ListBox::backgroundColourId, Theme::panelBg);
@@ -86,33 +86,63 @@ void CustomLookAndFeel::drawLinearSlider(juce::Graphics& g, int x, int y, int w,
     float pos, float /*min*/, float /*max*/,
     const juce::Slider::SliderStyle style, juce::Slider& s)
 {
-    // Track (as you had)
-    const float t = 5.f;
-    auto track = juce::Rectangle<float>((float)x, (float)y + (h - t) * 0.5f, (float)w, t);
-    g.setColour(Theme::trackBase); g.fillRoundedRectangle(track, t * 0.5f);
-    g.setColour(Theme::trackStrong.withAlpha(0.7f));
-    g.fillRoundedRectangle(track.withWidth(pos - track.getX()), t * 0.5f);
+    const bool isVertical = (style == juce::Slider::LinearVertical
+        || style == juce::Slider::LinearBarVertical);
 
-    // Thumb position
-    int cx = (style == juce::Slider::LinearHorizontal || style == juce::Slider::LinearBar)
-        ? (int)std::round(pos) : x + w / 2;
-    int cy = (style == juce::Slider::LinearHorizontal || style == juce::Slider::LinearBar)
-        ? y + h / 2 : (int)std::round(pos);
+    const bool isBar = (style == juce::Slider::LinearBar
+        || style == juce::Slider::LinearBarVertical);
 
-    // Pick state
-    const bool over = s.isMouseOver(true);
-    const bool down = s.isMouseButtonDown();
-    const juce::Image& thumb = down ? thumbPressed : (over ? thumbHover : thumbDefault);
+    const float t = 5.0f;
 
-    if (thumb.isValid())
-        drawCrispImageAt(g, thumb, cx, cy, sliderThumbPixels);
+    g.setColour(Theme::trackBase);
+
+    if (!isVertical)
+    {
+        // HORIZONTAL 
+        auto track = juce::Rectangle<float>((float)x, (float)y + (h - t) * 0.5f, (float)w, t);
+        g.fillRoundedRectangle(track, t * 0.5f);
+
+        g.setColour(Theme::trackStrong.withAlpha(0.7f));
+        const float filledW = juce::jlimit(0.0f, track.getWidth(), pos - track.getX());
+        g.fillRoundedRectangle(track.withWidth(filledW), t * 0.5f);
+
+        // draw thumb 
+        const int cx = (int)std::round(pos);
+        const int cy = (int)std::round(track.getCentreY());
+
+        const bool over = s.isMouseOver(true);
+        const bool down = s.isMouseButtonDown();
+        const juce::Image& thumb = down ? thumbPressed : (over ? thumbHover : thumbDefault);
+
+        if (thumb.isValid()) drawCrispImageAt(g, thumb, cx, cy, sliderThumbPixels);
+        else { g.setColour(Theme::accent); g.fillEllipse((float)cx - 7.f, (float)cy - 7.f, 14.f, 14.f); }
+    }
     else
     {
-        // fallback circle
-        g.setColour(Theme::accent);
-        g.fillEllipse((float)cx - 7.f, (float)cy - 7.f, 14.f, 14.f);
+        // VERTICAL 
+        auto track = juce::Rectangle<float>((float)x + (w - t) * 0.5f, (float)y, t, (float)h);
+        g.fillRoundedRectangle(track, t * 0.5f);
+
+        g.setColour(Theme::trackStrong.withAlpha(0.7f));
+        const float fillTop = juce::jlimit(track.getY(), track.getBottom(), pos);
+        const float fillH = track.getBottom() - fillTop;
+        if (fillH > 0.0f)
+            g.fillRoundedRectangle({ track.getX(), fillTop, track.getWidth(), fillH }, t * 0.5f);
+
+        // draw thumb
+        const int cx = (int)std::round(track.getCentreX());
+        const int cy = (int)std::round(pos);
+
+        const bool over = s.isMouseOver(true);
+        const bool down = s.isMouseButtonDown();
+        const juce::Image& thumb = down ? thumbPressed : (over ? thumbHover : thumbDefault);
+
+        if (thumb.isValid()) drawCrispImageAt(g, thumb, cx, cy, sliderThumbPixels);
+        else { g.setColour(Theme::accent); g.fillEllipse((float)cx - 7.f, (float)cy - 7.f, 14.f, 14.f); }
     }
 }
+
+
 
 void CustomLookAndFeel::drawComboBox(juce::Graphics& g, int w, int h, bool, int, int, int, int, juce::ComboBox& box) 
 {
@@ -179,6 +209,8 @@ bool CustomLookAndFeel::setSliderThumbImagesFromBasename(const juce::String& bas
     return true;
 }
 
+
+// crisp pixel art
 void CustomLookAndFeel::drawCrispImageAt(juce::Graphics& g, const juce::Image& img,
     int cx, int cy, int target)
 {
@@ -190,7 +222,9 @@ void CustomLookAndFeel::drawCrispImageAt(juce::Graphics& g, const juce::Image& i
 
     if (target >= maxDim)
     {
-        const int k = juce::jmax(1, target / maxDim);                  // integer upscale -> crisp
+        const int k = juce::jmax(1, target / maxDim);                  
+        
+        // integer upscale --> crisp
         g.setImageResamplingQuality(juce::Graphics::lowResamplingQuality);
         auto t = juce::AffineTransform::translation(-iw * 0.5f, -ih * 0.5f)
             .scaled((float)k, (float)k)
@@ -199,7 +233,9 @@ void CustomLookAndFeel::drawCrispImageAt(juce::Graphics& g, const juce::Image& i
     }
     else
     {
-        const float s = (float)target / (float)maxDim;               // downscale -> HQ
+        const float s = (float)target / (float)maxDim;               
+        
+        // downscale --> HQ
         g.setImageResamplingQuality(juce::Graphics::highResamplingQuality);
         auto t = juce::AffineTransform::translation(-iw * 0.5f, -ih * 0.5f)
             .scaled(s, s)

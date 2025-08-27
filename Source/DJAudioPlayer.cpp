@@ -116,3 +116,34 @@ bool DJAudioPlayer::isPlaying() const
     return transportSource.isPlaying();
 }
     
+
+// methods for exporting
+double DJAudioPlayer::getPositionSeconds() const
+{
+    return transportSource.getCurrentPosition();
+}
+
+
+// length of the loaded track in seconds
+double DJAudioPlayer::getTrackLengthSeconds() const
+{
+    // transport knows the exact length
+    const double len = transportSource.getLengthInSeconds();
+    if (std::isfinite(len) && len > 0.0)
+    {
+        return len;
+    }
+
+    // compute from the reader if available
+    if (readerSource != nullptr)
+    {
+        if (auto* r = readerSource->getAudioFormatReader())
+        {
+            if (r->sampleRate > 0.0)
+            {
+                return (double)r->lengthInSamples / r->sampleRate;
+            }
+        }
+    }
+    return 0.0;
+}

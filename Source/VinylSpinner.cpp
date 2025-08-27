@@ -34,11 +34,11 @@ void VinylSpinner::paint(juce::Graphics& g)
     const int imgW = vinyl.getWidth();
     const int imgH = vinyl.getHeight();
 
-    // arget square (spinner component is square in your layout)
+    // target square
     const int target = std::min(compW, compH);
 
     // integer scaling for pixel rendering
-    int integerScale = std::max(1, target / std::max(imgW, imgH));  // floor
+    int integerScale = std::max(1, target / std::max(imgW, imgH));  
     int drawW = imgW * integerScale;
     int drawH = imgH * integerScale;
 

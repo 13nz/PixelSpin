@@ -23,13 +23,14 @@ DeckGUI::DeckGUI(DJAudioPlayer* _player,
                   vinyl(_player, 33.333)
 {
 
-    //addAndMakeVisible(buttonRow);
 
     // hide text for pixel art buttons
     playButton.setButtonText({});
     stopButton.setButtonText({});
     loadButton.setButtonText({});
     clearButton.setButtonText({});
+
+    saveButton.setButtonText({});
 
     bool okPlay = playButton.setImagesFromBaseName("play");   
     bool okStop = stopButton.setImagesFromBaseName("stop");
@@ -41,11 +42,20 @@ DeckGUI::DeckGUI(DJAudioPlayer* _player,
     addAndMakeVisible(loadButton);
     addAndMakeVisible(clearButton);
 
-  
+
+    // vertical sliders
+    volSlider.setSliderStyle(juce::Slider::LinearBarVertical);
+    volSlider.setTextBoxStyle(juce::Slider::NoTextBox, false, 0, 0);
+
+    speedSlider.setSliderStyle(juce::Slider::LinearBarVertical);
+    speedSlider.setTextBoxStyle(juce::Slider::NoTextBox, false, 0, 0);
+
 
     addAndMakeVisible(volSlider);
     addAndMakeVisible(speedSlider);
     addAndMakeVisible(posSlider);
+
+
 
     // Waveform component
     addAndMakeVisible(waveformDisplay);
@@ -127,7 +137,7 @@ DeckGUI::DeckGUI(DJAudioPlayer* _player,
     compressionLabel.setInterceptsMouseClicks(false, false);
     addAndMakeVisible(compressionLabel);
 
-    // Lo‑Fi
+    // Delay
     delayLabel.setText("Delay", juce::dontSendNotification);
     delayLabel.setJustificationType(juce::Justification::centred);
     delayLabel.setInterceptsMouseClicks(false, false);
@@ -162,6 +172,31 @@ DeckGUI::DeckGUI(DJAudioPlayer* _player,
                 player->setDelayAmount(step / 6.0f); // 0..6 → 0..1
         };
 
+
+    // pads
+    for (PixelPad* p : { &scratchPad1, &scratchPad2, &vinylGlitchPad })
+    {
+        p->setButtonText({}); 
+        p->setImagesFromBaseName("pad");
+        addAndMakeVisible(*p);
+        p->addListener(this);
+    }
+
+    // pad labels
+    scratch1Label.setText("Scratch 1", juce::dontSendNotification);
+    scratch1Label.setJustificationType(juce::Justification::centredRight);
+    addAndMakeVisible(scratch1Label);
+
+    scratch2Label.setText("Scratch 2", juce::dontSendNotification);
+    scratch2Label.setJustificationType(juce::Justification::centredRight);
+    addAndMakeVisible(scratch2Label);
+
+    vinylGlitchLabel.setText("Vinyl Glitch", juce::dontSendNotification);
+    vinylGlitchLabel.setJustificationType(juce::Justification::centredRight);
+    addAndMakeVisible(vinylGlitchLabel);
+
+
+
     // 500 milliseconds: half a second
     startTimer(500);
 
@@ -187,85 +222,124 @@ void DeckGUI::paint (juce::Graphics& g)
 
 
 
-
 void DeckGUI::resized()
 {
     using juce::roundToInt;
+
     auto r = getLocalBounds().reduced(8);
 
-    // 1) Waveform at the top
+    // Buttons
+    const int knobGap = 12;
+    const int btnRowH = 36;                      
+    auto btnRow = r.removeFromBottom(btnRowH);
+    const int btnSz = btnRowH;
+
+    // Waveform on top
     const int waveH = juce::jmax(48, roundToInt(getHeight() * 0.14f));
     waveformDisplay.setBounds(r.removeFromTop(waveH));
 
-    // 2) Vinyl dropdown
+    // position slider
+    const int labelW = 50;
+    const int posRowH = 20;
+    {
+        auto row = r.removeFromTop(posRowH);
+        posLabel.setBounds(row.removeFromLeft(labelW));
+        posSlider.setBounds(row);
+    }
+
+    // vinyl dropdown
     const int dropH = 24;
     vinylSelect.setBounds(r.removeFromTop(dropH).reduced(2));
 
-    // 3) Main vinyl area
+    // vinyl area with knobs
     auto vinylArea = r.removeFromTop(roundToInt(getHeight() * 0.55f)).reduced(6);
 
-    // Reserve side strips for knobs
-    const int knobSz = 80;        // knob size
-    const int knobGap = 12;
+    const int knobSz = 80;
     const int knobColW = knobSz + 2 * knobGap;
 
     auto leftCol = vinylArea.removeFromLeft(knobColW);
     auto rightCol = vinylArea.removeFromRight(knobColW);
 
-    // Place vinyl in the remaining center
+    // Vinyl centered
     const int side = std::min(vinylArea.getWidth(), vinylArea.getHeight());
     vinyl.setBounds(juce::Rectangle<int>(0, 0, side, side).withCentre(vinylArea.getCentre()));
 
-    // knobs vertically next to vinyl
+    // Knobs & labels (left)
     auto kbLeft = juce::Rectangle<int>(0, 0, knobSz, knobSz).withCentre(leftCol.getCentre());
     reverbKnob.setBounds(kbLeft.translated(0, -knobSz - knobGap));
     reverbLabel.setBounds(reverbKnob.getBounds().withY(reverbKnob.getBottom()).withHeight(16));
     chorusKnob.setBounds(kbLeft.translated(0, knobSz + knobGap));
     chorusLabel.setBounds(chorusKnob.getBounds().withY(chorusKnob.getBottom()).withHeight(16));
 
+    // Knobs & labels (right)
     auto kbRight = juce::Rectangle<int>(0, 0, knobSz, knobSz).withCentre(rightCol.getCentre());
     compressionKnob.setBounds(kbRight.translated(0, -knobSz - knobGap));
     compressionLabel.setBounds(compressionKnob.getBounds().withY(compressionKnob.getBottom()).withHeight(16));
     delayKnob.setBounds(kbRight.translated(0, knobSz + knobGap));
     delayLabel.setBounds(delayKnob.getBounds().withY(delayKnob.getBottom()).withHeight(16));
 
-    // sliders row
-    // 4) Sliders row
-    const int labelW = 50;    // width reserved for labels
-    const int sliderH = 16;
-    const int sliderGap = 6;
+    //vertical sliders for vol & speed
+    const int padLabelH = 16;                 
+    const int sliderBandH = juce::jmax(120, roundToInt(getHeight() * 0.20f));
+    auto sliderBand = r.removeFromTop(sliderBandH).reduced(2);
 
-    auto slidersArea = r.removeFromTop(sliderH * 3 + sliderGap * 2).reduced(2);
+    // Left/right vertical strips for volume/speed
+    const int vStripW = 36;
 
+    // Left strip: VOL
     {
-        auto row = slidersArea.removeFromTop(sliderH);
-        volLabel.setBounds(row.removeFromLeft(labelW));
-        volSlider.setBounds(row);
-    }
-    slidersArea.removeFromTop(sliderGap);
-
-    {
-        auto row = slidersArea.removeFromTop(sliderH);
-        speedLabel.setBounds(row.removeFromLeft(labelW));
-        speedSlider.setBounds(row);
-    }
-    slidersArea.removeFromTop(sliderGap);
-
-    {
-        auto row = slidersArea.removeFromTop(sliderH);
-        posLabel.setBounds(row.removeFromLeft(labelW));
-        posSlider.setBounds(row);
+        auto strip = sliderBand.removeFromLeft(vStripW);
+        volLabel.setBounds(strip.removeFromTop(16));
+        volSlider.setBounds(strip); // fills remaining height
     }
 
+    // Right strip: SPEED
+    {
+        auto strip = sliderBand.removeFromRight(vStripW);
+        speedLabel.setBounds(strip.removeFromTop(16));
+        speedSlider.setBounds(strip);
+    }
 
-    // gap below sliders
-    r.removeFromTop(12); 
+    // center area for pads
+    {
+        auto center = sliderBand.reduced(4);
 
-    // buttons row 
-    const int btnRowH = 32;
-    auto btnRow = r.removeFromTop(btnRowH);
-    const int btnSz = btnRow.getHeight();
+        const int maxPad = center.getHeight() - padLabelH - 4;       
+        const int padSz = juce::jlimit(64, 128, maxPad); 
 
+        const int gap = 6; 
+        const int nPads = 3;
+        const int totalW = nPads * padSz + (nPads - 1) * gap;
+
+        // block for pad and label below
+        const int blockH = padSz + padLabelH;
+        auto block = juce::Rectangle<int>(0, 0, totalW, blockH).withCentre(center.getCentre());
+
+        // split into pad row and label row
+        auto padsRow = block.removeFromTop(padSz);
+        auto labelsRow = block; 
+
+        // pads
+        auto p1 = padsRow.removeFromLeft(padSz);
+        padsRow.removeFromLeft(gap);
+        auto p2 = padsRow.removeFromLeft(padSz);
+        padsRow.removeFromLeft(gap);
+        auto p3 = padsRow.removeFromLeft(padSz);
+
+        scratchPad1.setBounds(p1);
+        scratchPad2.setBounds(p2);
+        vinylGlitchPad.setBounds(p3);
+
+        // labels
+        scratch1Label.setBounds(p1.withHeight(padLabelH).withY(labelsRow.getY()));
+        scratch2Label.setBounds(p2.withHeight(padLabelH).withY(labelsRow.getY()));
+        vinylGlitchLabel.setBounds(p3.withHeight(padLabelH).withY(labelsRow.getY()));
+    }
+
+    // gap
+    r.removeFromTop(8);
+
+    // buttons
     playButton.setBounds(btnRow.removeFromLeft(btnSz));
     btnRow.removeFromLeft(knobGap);
     stopButton.setBounds(btnRow.removeFromLeft(btnSz));
@@ -274,7 +348,6 @@ void DeckGUI::resized()
     btnRow.removeFromLeft(knobGap);
     clearButton.setBounds(btnRow.removeFromLeft(btnSz));
 }
-
 
 
 
@@ -308,8 +381,13 @@ void DeckGUI::buttonClicked(juce::Button* button)
                 }
             });
     }
+    // pads
+    else if (button == &scratchPad1) { if (onPadTriggered) onPadTriggered("scratch1"); }
+    else if (button == &scratchPad2) { if (onPadTriggered) onPadTriggered("scratch2"); }
+    else if (button == &vinylGlitchPad) { if (onPadTriggered) onPadTriggered("glitch"); }
 }
 
+// slider handler
 void DeckGUI::sliderValueChanged(juce::Slider* slider)
 {
     if (slider == &volSlider) 
@@ -326,6 +404,8 @@ void DeckGUI::sliderValueChanged(juce::Slider* slider)
     }
 }
 
+
+// file handling
 bool DeckGUI::isInterestedInFileDrag(const juce::StringArray& files)
 {
     return true;
@@ -380,6 +460,7 @@ void DeckGUI::scanVinylAssets()
     folder.findChildFiles(all, juce::File::findFiles, false);
     all.sort();
 
+    // loop & add each file
     for (auto& f : all)
         if (f.getFileExtension().equalsIgnoreCase(".png"))
         {
@@ -391,6 +472,7 @@ void DeckGUI::scanVinylAssets()
     for (int i = 0; i < vinylNames.size(); ++i)
         vinylSelect.addItem(vinylNames[i], i + 1);
 
+    // default file
     if (!vinylFiles.isEmpty())
     {
         vinylSelect.setSelectedId(1, juce::dontSendNotification);
@@ -400,7 +482,7 @@ void DeckGUI::scanVinylAssets()
 
 juce::File DeckGUI::getVinylsFolder()
 {
-    // walk up from the executable looking for Assets/Vinyls (works in Debug/Release and when running from IDE)
+    // walk up from the executable looking for Assets/Vinyls
     juce::File dir = juce::File::getSpecialLocation(juce::File::currentExecutableFile).getParentDirectory();
     for (int i = 0; i < 10; ++i)
     {
@@ -409,7 +491,7 @@ juce::File DeckGUI::getVinylsFolder()
             return candidate;
         dir = dir.getParentDirectory();
     }
-    // fallback: project root
+    // fallback to project root
     dir = juce::File::getCurrentWorkingDirectory().getChildFile("Assets").getChildFile("Vinyls");
     if (dir.isDirectory()) return dir;
     return {};

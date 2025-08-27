@@ -4,7 +4,7 @@
 #include <vector>
 #include "PixelButton.h"
 
-// to avoid circular include
+// avoid circular include
 class DJAudioPlayer;
 class DeckGUI;
 
@@ -64,7 +64,6 @@ public:
 
 private:
     juce::TableListBox tableComponent;
-    //std::vector<std::string> trackTitles;
 
     struct Track { 
         juce::File file; 

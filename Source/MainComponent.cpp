@@ -1,4 +1,4 @@
-#include "MainComponent.h"
+﻿#include "MainComponent.h"
 
 //==============================================================================
 MainComponent::MainComponent()
@@ -33,9 +33,23 @@ MainComponent::MainComponent()
     addAndMakeVisible(playlistComponent1);
     addAndMakeVisible(playlistComponent2);
 
+    // add mixing strip
+    addAndMakeVisible(mixerStrip);
+
     // set each components playlist
     deckGUI1.setPlaylist(&playlistComponent1);
     deckGUI2.setPlaylist(&playlistComponent2);
+
+    // connect to DeckGUI pads
+    deckGUI1.onPadTriggered = [this](const juce::String& id) { triggerPad(id); };
+    deckGUI2.onPadTriggered = [this](const juce::String& id) { triggerPad(id); };
+
+    // crossfader
+    mixerStrip.onCrossfadeChanged = [this](float x) { applyCrossfade(x); };
+    mixerStrip.onSnapToDeck = [this](bool toB)
+        {
+            applyCrossfade(toB ? 1.0f : 0.0f);
+        };
 
 
     formatManager.registerBasicFormats();
@@ -69,6 +83,10 @@ void MainComponent::prepareToPlay (int samplesPerBlockExpected, double sampleRat
     // set up mixer
     mixerSource.addInputSource(&player1, false);
     mixerSource.addInputSource(&player2, false);
+
+    // add samples input source
+    mixerSource.addInputSource(&sampleBank, false);
+    sampleBank.prepareToPlay(samplesPerBlockExpected, sampleRate);
 }
 
 void MainComponent::getNextAudioBlock(const juce::AudioSourceChannelInfo& bufferToFill) 
@@ -81,6 +99,9 @@ void MainComponent::releaseResources()
 {
     player1.releaseResources();
     player2.releaseResources();
+
+    // release samples resources
+    sampleBank.releaseResources();
 
     mixerSource.releaseResources();
 }
@@ -96,16 +117,35 @@ void MainComponent::resized()
 {
     auto r = getLocalBounds();
 
-    // decks (2/3)
+    // decks & mixer
     auto decksArea = r.removeFromTop((r.getHeight() * 2) / 3);
-    deckGUI1.setBounds(decksArea.removeFromLeft(decksArea.getWidth() / 2));
-    deckGUI2.setBounds(decksArea);
 
-    // playlists (1/3)
+    // area for mixer strip
+    const int mixW = 140;
+    auto left = decksArea.removeFromLeft((decksArea.getWidth() - mixW) / 2);
+    auto center = decksArea.removeFromLeft(mixW);
+    auto right = decksArea;
+
+    deckGUI1.setBounds(left);
+    mixerStrip.setBounds(center.reduced(8));
+    deckGUI2.setBounds(right);
+
+    // playlists
     playlistComponent1.setBounds(r.removeFromLeft(r.getWidth() / 2));
     playlistComponent2.setBounds(r);
 }
 
+void MainComponent::applyCrossfade(float x)
+{
+    x = juce::jlimit(0.0f, 1.0f, x);
+    // equal-power (−3 dB center): gA = cos(theta)^2, gB = sin(theta)^2
+    const float theta = x * juce::MathConstants<float>::halfPi; 
+    const float gA = std::cos(theta);
+    const float gB = std::sin(theta);
+
+    player1.setGain(gA);   
+    player2.setGain(gB);  
+}
 
 
 

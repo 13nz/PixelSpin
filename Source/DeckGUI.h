@@ -6,6 +6,7 @@
 #include "PixelButton.h"
 #include "VinylSpinner.h"
 #include "PixelKnob.h"
+#include "PixelPad.h"
 
 
 // avoid circular include errors
@@ -32,10 +33,8 @@ public:
     void paint (juce::Graphics&) override;
     void resized() override;
 
-    // implement Button::Listener
     void buttonClicked(juce::Button* button) override;
 
-    // implement Slider::Listener
     void sliderValueChanged(juce::Slider* slider) override;
 
     bool isInterestedInFileDrag(const juce::StringArray& files) override;
@@ -60,6 +59,9 @@ public:
     // combo change (vinyl)
     void comboBoxChanged(juce::ComboBox* box) override;
 
+    // pad triggered
+    std::function<void(const juce::String&)> onPadTriggered;
+
 
 private:
     juce::Slider volSlider;
@@ -83,6 +85,9 @@ private:
     PixelButton loadButton;
     PixelButton clearButton;
 
+    // export button
+    PixelButton saveButton;
+
     // vinyl per deck
     VinylSpinner vinyl;                
     juce::ComboBox vinylSelect;        
@@ -105,6 +110,15 @@ private:
 
     // knob labels
     juce::Label reverbLabel, chorusLabel, compressionLabel, delayLabel;
+
+    // pads
+    PixelPad scratchPad1;
+    PixelPad scratchPad2;
+    PixelPad vinylGlitchPad;
+
+    // pad labels
+    juce::Label scratch1Label, scratch2Label, vinylGlitchLabel;
+
 
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (DeckGUI)

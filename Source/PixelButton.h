@@ -51,5 +51,6 @@ private:
 
     static juce::File defaultButtonsFolder; // defined once in PixelButton.cpp
 
+
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (PixelButton)
 };

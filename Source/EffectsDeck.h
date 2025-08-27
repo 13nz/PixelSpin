@@ -26,6 +26,7 @@ public:
     // Reverb
     // https://docs.juce.com/master/namespacedsp.html
     // https://docs.juce.com/master/classReverb.html
+    
     // call from player
     void prepare(double sampleRate, int maxBlockSize, int numChannels);
     void reset();
@@ -35,7 +36,7 @@ public:
     void setReverbAmount(float wet01);
 
     // chorus
-    void setChorusAmount(float amt01); // 0..1
+    void setChorusAmount(float amt01); 
 
     // compression
     void setCompressionAmount(float amt01);
@@ -61,8 +62,8 @@ private:
     using DL = juce::dsp::DelayLine<float, juce::dsp::DelayLineInterpolationTypes::Linear>;
     std::unique_ptr<DL> delay;   // mono line
     double fs{ 44100.0 };
-    float  delayTimeMs{ 0.0f };  // 0..2000 ms
-    float  delayFeedback{ 0.0f };  // 0..~0.9
+    float  delayTimeMs{ 0.0f };  
+    float  delayFeedback{ 0.0f };  
     float  delayMix{ 0.0f };
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (EffectsDeck)
