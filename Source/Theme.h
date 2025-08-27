@@ -26,7 +26,7 @@
 
 namespace Theme {
     // Dark surfaces 
-    static const juce::Colour windowBg{ 0xFF6E51C8 }; 
+    static const juce::Colour windowBg{ 0xFF63548a };
    // static const juce::Colour panelBg{ 0xFFA065CD }; //   deck
     static const juce::Colour panelBg{ 0xFF6e5da3 }; //   deck
     static const juce::Colour panelBg2{ 0xFF3C42C4 }; //   playlist

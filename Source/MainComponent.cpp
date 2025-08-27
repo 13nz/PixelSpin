@@ -51,6 +51,9 @@ MainComponent::MainComponent()
             applyCrossfade(toB ? 1.0f : 0.0f);
         };
 
+    // bars visualization
+    addAndMakeVisible(playlistGapViz);
+
 
     formatManager.registerBasicFormats();
 
@@ -87,11 +90,17 @@ void MainComponent::prepareToPlay (int samplesPerBlockExpected, double sampleRat
     // add samples input source
     mixerSource.addInputSource(&sampleBank, false);
     sampleBank.prepareToPlay(samplesPerBlockExpected, sampleRate);
+
+    // freq bars
+    playlistGapViz.prepare(sampleRate);
 }
 
 void MainComponent::getNextAudioBlock(const juce::AudioSourceChannelInfo& bufferToFill) 
 {
     mixerSource.getNextAudioBlock(bufferToFill);
+
+    // freq bars]mixerSource.getNextAudioBlock(bufferToFill);
+    playlistGapViz.pushAudioBlock(*bufferToFill.buffer, bufferToFill.startSample, bufferToFill.numSamples);
 }
 
 
@@ -131,8 +140,17 @@ void MainComponent::resized()
     deckGUI2.setBounds(right);
 
     // playlists
-    playlistComponent1.setBounds(r.removeFromLeft(r.getWidth() / 2));
-    playlistComponent2.setBounds(r);
+    auto playlistsArea = r;
+
+    auto leftPl = playlistsArea.removeFromLeft((playlistsArea.getWidth() - mixW) / 2);
+    auto gap = playlistsArea.removeFromLeft(mixW); // empty gap same as mixer width
+    auto rightPl = playlistsArea;
+
+    playlistComponent1.setBounds(leftPl);
+    playlistComponent2.setBounds(rightPl);
+
+    // bars
+    playlistGapViz.setBounds(gap.reduced(6));
 }
 
 void MainComponent::applyCrossfade(float x)

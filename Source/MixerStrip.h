@@ -11,6 +11,7 @@
 #pragma once
 
 #include <JuceHeader.h>
+#include "PixelButton.h"
 
 //==============================================================================
 class MixerStrip : public juce::Component
@@ -31,7 +32,7 @@ public:
 private:
     juce::Label  title;
     juce::Slider crossfader;
-    juce::TextButton btnA, btnB;
+    PixelButton btnA, btnB;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(MixerStrip)
 };

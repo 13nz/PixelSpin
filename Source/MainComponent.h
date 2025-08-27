@@ -7,6 +7,7 @@
 #include "VinylSpinner.h"
 #include "CustomLookAndFeel.h"
 #include "SampleAudioSource.h"
+#include "SpectrumBars.h"
 
 
 //==============================================================================
@@ -61,6 +62,9 @@ private:
 
     // crossfade helper
     void applyCrossfade(float x);  
+
+    // bars
+    SpectrumBars playlistGapViz{ 10 /*1024*/, 16 /*bars*/ };
 
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (MainComponent)

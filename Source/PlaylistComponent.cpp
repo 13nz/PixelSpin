@@ -1,4 +1,4 @@
-/*
+﻿/*
   ==============================================================================
 
     PlaylistComponent.cpp
@@ -20,7 +20,7 @@ PlaylistComponent::PlaylistComponent(DJAudioPlayer& targetPlayer, DeckGUI& targe
 {
     tableComponent.getHeader().addColumn("Track title", 1, 400);
     tableComponent.getHeader().addColumn("Length", 2, 90);
-    tableComponent.getHeader().addColumn("", 3, 100); // Load
+    tableComponent.getHeader().addColumn("Play", 3, 60);
 
 
 
@@ -88,39 +88,43 @@ void PlaylistComponent::paintCell(
     const auto& t = tracks[(size_t)rowNumber];
     juce::String text;
 
-    if (columnId == 1)
-    {
+    if (columnId == 1) {
         text = t.title;
     }
-    else if (columnId == 2)
+    else if (columnId == 2) 
     {
         text = formatSeconds(t.lengthSeconds);
     }
 
-    if (text.isNotEmpty())
-    {
-        g.drawText(text, 2, 0, width - 4, height, juce::Justification::centredLeft, true);
-    }
-
     g.setColour(Theme::textOnDarkMain);
-    g.drawText(text, 6, 0, width - 12, height, juce::Justification::centredLeft, true);
+    g.drawText(text, 6, 0, width - 12, height,
+        juce::Justification::centredLeft, true);
 
 }
 
 juce::Component* PlaylistComponent::refreshComponentForCell(int rowNumber, int columnId, bool isRowSelected, juce::Component* existingComponentToUpdate)
 {
-    if (columnId == 2)
+    if (columnId == 3)  // play button
     {
-        if (existingComponentToUpdate == nullptr)
+        struct PlayButton : juce::TextButton { int row = -1; };
+        auto* btn = dynamic_cast<PlayButton*>(existingComponentToUpdate);
+
+        if (btn == nullptr)
         {
-            juce::TextButton* btn = new juce::TextButton{ "play" };
-            juce::String id{ std::to_string(rowNumber) };
-            btn->setComponentID(id);
-            btn->addListener(this);
-            existingComponentToUpdate = btn;
+            btn = new PlayButton();
+            btn->setButtonText("Play");
+            btn->onClick = [this, btn]()
+                {
+                    if (btn && juce::isPositiveAndBelow(btn->row, (int)tracks.size()))
+                        playRow(btn->row);
+                };
         }
+
+        btn->row = rowNumber;
+        return btn;
     }
-    return existingComponentToUpdate;
+
+    return nullptr;
 }
 
 void PlaylistComponent::buttonClicked(juce::Button* button)

@@ -34,6 +34,10 @@ MixerStrip::MixerStrip()
 
     addAndMakeVisible(crossfader);
 
+
+    btnA.setImagesFromBaseName("A");
+    btnB.setImagesFromBaseName("B");
+
     btnA.setButtonText("A");
     btnB.setButtonText("B");
 
@@ -61,15 +65,39 @@ void MixerStrip::setCrossfade(float x)
 
 void MixerStrip::resized()
 {
-    auto r = getLocalBounds().reduced(8);
+    auto area = getLocalBounds().reduced(8);
 
-    title.setBounds(r.removeFromTop(22));
+    // fixed heights
+    const int titleH = 22;
+    const int btnH = 32;
+    const int crossH = 24;
+    const int gap = 6;
 
-    auto topRow = r.removeFromTop(28);
-    btnA.setBounds(topRow.removeFromLeft(36));
-    topRow.removeFromLeft(6);
-    btnB.setBounds(topRow.removeFromRight(36));
+    // total block height
+    const int blockH = titleH + gap + btnH + gap + crossH;
 
-    r.removeFromTop(6);
-    crossfader.setBounds(r.removeFromTop(24));
+    // vertically centered block
+    auto block = area.withHeight(blockH).withCentre(area.getCentre());
+
+    // title row
+    title.setBounds(block.removeFromTop(titleH));
+
+    block.removeFromTop(gap);
+
+    // centered buttons
+    auto btnRow = block.removeFromTop(btnH);
+    auto btnW = 32;
+    auto btnTotalW = btnW * 2 + gap;
+    auto btnArea = btnRow.withWidth(btnTotalW).withCentre(btnRow.getCentre());
+    btnA.setBounds(btnArea.removeFromLeft(btnW));
+    btnArea.removeFromLeft(gap);
+    btnB.setBounds(btnArea.removeFromLeft(btnW));
+
+    block.removeFromTop(gap);
+
+    // crossfade row
+    auto crossRow = block.removeFromTop(crossH);
+    auto crossW = crossRow.getWidth(); // leave margin
+    crossfader.setBounds(crossRow.withWidth(crossW).withCentre(crossRow.getCentre()));
 }
+
