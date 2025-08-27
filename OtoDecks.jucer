@@ -4,6 +4,9 @@
               addUsingNamespaceToJuceHeader="0" jucerFormatVersion="1">
   <MAINGROUP id="QRBohZ" name="OtoDecks">
     <GROUP id="{BE5854E4-E8B7-34AD-0657-467F1C6CC4BF}" name="Source">
+      <FILE id="IkiWBZ" name="SpectrumBars.cpp" compile="1" resource="0"
+            file="Source/SpectrumBars.cpp"/>
+      <FILE id="QJWnfT" name="SpectrumBars.h" compile="0" resource="0" file="Source/SpectrumBars.h"/>
       <FILE id="VxlFW1" name="MixerStrip.cpp" compile="1" resource="0" file="Source/MixerStrip.cpp"/>
       <FILE id="pGNlYs" name="MixerStrip.h" compile="0" resource="0" file="Source/MixerStrip.h"/>
       <FILE id="JZcDLR" name="SampleAudioSource.cpp" compile="1" resource="0"
