@@ -112,12 +112,14 @@ private:
     juce::Label reverbLabel, chorusLabel, compressionLabel, delayLabel;
 
     // pads
-    PixelPad scratchPad1;
-    PixelPad scratchPad2;
+    PixelPad scratchPad;
     PixelPad vinylGlitchPad;
+    PixelPad kickPad;
+    PixelPad snarePad;
+    PixelPad drumPad;
 
     // pad labels
-    juce::Label scratch1Label, scratch2Label, vinylGlitchLabel;
+    juce::Label scratchLabel, vinylGlitchLabel, kickLabel, snareLabel, drumLabel;
 
 
 

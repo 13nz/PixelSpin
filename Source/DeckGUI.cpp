@@ -174,7 +174,7 @@ DeckGUI::DeckGUI(DJAudioPlayer* _player,
 
 
     // pads
-    for (PixelPad* p : { &scratchPad1, &scratchPad2, &vinylGlitchPad })
+    for (PixelPad* p : { &scratchPad, &vinylGlitchPad, &kickPad, &snarePad, &drumPad })
     {
         p->setButtonText({}); 
         p->setImagesFromBaseName("pad");
@@ -183,17 +183,25 @@ DeckGUI::DeckGUI(DJAudioPlayer* _player,
     }
 
     // pad labels
-    scratch1Label.setText("Scratch 1", juce::dontSendNotification);
-    scratch1Label.setJustificationType(juce::Justification::centredRight);
-    addAndMakeVisible(scratch1Label);
-
-    scratch2Label.setText("Scratch 2", juce::dontSendNotification);
-    scratch2Label.setJustificationType(juce::Justification::centredRight);
-    addAndMakeVisible(scratch2Label);
+    scratchLabel.setText("Scratch", juce::dontSendNotification);
+    scratchLabel.setJustificationType(juce::Justification::centredRight);
+    addAndMakeVisible(scratchLabel);
 
     vinylGlitchLabel.setText("Vinyl Glitch", juce::dontSendNotification);
     vinylGlitchLabel.setJustificationType(juce::Justification::centredRight);
     addAndMakeVisible(vinylGlitchLabel);
+
+    kickLabel.setText("Kick", juce::dontSendNotification);
+    kickLabel.setJustificationType(juce::Justification::centredRight);
+    addAndMakeVisible(kickLabel);
+
+    snareLabel.setText("Snare", juce::dontSendNotification);
+    snareLabel.setJustificationType(juce::Justification::centredRight);
+    addAndMakeVisible(snareLabel);
+
+    drumLabel.setText("Drum", juce::dontSendNotification);
+    drumLabel.setJustificationType(juce::Justification::centredRight);
+    addAndMakeVisible(drumLabel);
 
 
 
@@ -308,7 +316,7 @@ void DeckGUI::resized()
         const int padSz = juce::jlimit(64, 128, maxPad); 
 
         const int gap = 6; 
-        const int nPads = 3;
+        const int nPads = 5;
         const int totalW = nPads * padSz + (nPads - 1) * gap;
 
         // block for pad and label below
@@ -325,15 +333,23 @@ void DeckGUI::resized()
         auto p2 = padsRow.removeFromLeft(padSz);
         padsRow.removeFromLeft(gap);
         auto p3 = padsRow.removeFromLeft(padSz);
+        padsRow.removeFromLeft(gap);
+        auto p4 = padsRow.removeFromLeft(padSz);
+        padsRow.removeFromLeft(gap);
+        auto p5 = padsRow.removeFromLeft(padSz);
 
-        scratchPad1.setBounds(p1);
-        scratchPad2.setBounds(p2);
-        vinylGlitchPad.setBounds(p3);
+        scratchPad.setBounds(p1);
+        vinylGlitchPad.setBounds(p2);
+        snarePad.setBounds(p3);
+        kickPad.setBounds(p4);
+        drumPad.setBounds(p5);
 
         // labels
-        scratch1Label.setBounds(p1.withHeight(padLabelH).withY(labelsRow.getY()));
-        scratch2Label.setBounds(p2.withHeight(padLabelH).withY(labelsRow.getY()));
-        vinylGlitchLabel.setBounds(p3.withHeight(padLabelH).withY(labelsRow.getY()));
+        scratchLabel.setBounds(p1.withHeight(padLabelH).withY(labelsRow.getY()));
+        vinylGlitchLabel.setBounds(p2.withHeight(padLabelH).withY(labelsRow.getY()));
+        snareLabel.setBounds(p3.withHeight(padLabelH).withY(labelsRow.getY()));
+        kickLabel.setBounds(p4.withHeight(padLabelH).withY(labelsRow.getY()));
+        drumLabel.setBounds(p5.withHeight(padLabelH).withY(labelsRow.getY()));
     }
 
     // gap
@@ -382,9 +398,11 @@ void DeckGUI::buttonClicked(juce::Button* button)
             });
     }
     // pads
-    else if (button == &scratchPad1) { if (onPadTriggered) onPadTriggered("scratch1"); }
-    else if (button == &scratchPad2) { if (onPadTriggered) onPadTriggered("scratch2"); }
+    else if (button == &scratchPad) { if (onPadTriggered) onPadTriggered("scratch"); }
     else if (button == &vinylGlitchPad) { if (onPadTriggered) onPadTriggered("glitch"); }
+    else if (button == &snarePad) { if (onPadTriggered) onPadTriggered("snare"); }
+    else if (button == &kickPad) { if (onPadTriggered) onPadTriggered("kick"); }
+    else if (button == &drumPad) { if (onPadTriggered) onPadTriggered("drum"); }
 }
 
 // slider handler
