@@ -3,7 +3,7 @@
 
     VinylSpinner.cpp
     Created: 16 Aug 2025 5:38:18pm
-    Author:  User
+    Author:  Lena
 
   ==============================================================================
 */
@@ -12,32 +12,33 @@
 #include "VinylSpinner.h"
 #include "DJAudioPlayer.h"
 
-//==============================================================================
+// draws and rotates a pixel art record image when the player is playing
 VinylSpinner::VinylSpinner(DJAudioPlayer* p, double rpmIn) : player(p), rpm(rpmIn)
 {
-    startTimer(30);
+    startTimer(30); // for 30fps
     setInterceptsMouseClicks(false, false);
 }
 
 VinylSpinner::~VinylSpinner()
 {
+    // stop timer when destroyed
     stopTimer();
 }
 
 void VinylSpinner::paint(juce::Graphics& g)
 {
-    g.fillAll(juce::Colours::transparentBlack);
-    if (!vinyl.isValid()) return;
+    g.fillAll(juce::Colours::transparentBlack); // clear with transparent bg
+    if (!vinyl.isValid()) return; // don't draw if image not set
 
     const int compW = getWidth();
     const int compH = getHeight();
     const int imgW = vinyl.getWidth();
     const int imgH = vinyl.getHeight();
 
-    // target square
+    // target square size
     const int target = std::min(compW, compH);
 
-    // integer scaling for pixel rendering
+    // nearest integer scaling for pixel rendering
     int integerScale = std::max(1, target / std::max(imgW, imgH));  
     int drawW = imgW * integerScale;
     int drawH = imgH * integerScale;
@@ -74,6 +75,7 @@ void VinylSpinner::resized()
 
 }
 
+// stores new image and redraws with new vinyl
 void VinylSpinner::setImage(const juce::Image& img)
 {
     vinyl = img;
@@ -82,16 +84,20 @@ void VinylSpinner::setImage(const juce::Image& img)
 
 void VinylSpinner::timerCallback()
 {
+    // only rotate when audio is playing
     if (player != nullptr && player->isPlaying())
     {
         const double fps = 30.0;
+        // angle by rpm converted to radians
         currentAngle += juce::MathConstants<double>::twoPi * (rpm / 60.0) * (1.0 / fps);
 
+        // constrain to 0-2pi
         if (currentAngle > juce::MathConstants<double>::twoPi)
         {
             currentAngle -= juce::MathConstants<double>::twoPi;
         }
 
+        // redraw
         repaint();
     }
 }

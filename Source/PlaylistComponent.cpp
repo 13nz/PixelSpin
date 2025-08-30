@@ -15,16 +15,20 @@
 #include "Theme.h"
 
 
-//==============================================================================
+// table based playlist with title length & play button
+// play by double click, track play button, or deck play button
+// multi select & persistent library
+
 PlaylistComponent::PlaylistComponent(DJAudioPlayer& targetPlayer, DeckGUI& targetDeckGUI, juce::AudioFormatManager& fmt, juce::String playId) : player(targetPlayer), deckGUI(targetDeckGUI), formatManager(fmt), playlistId(playId)
 {
+    // columns: title, length, button
     tableComponent.getHeader().addColumn("Track title", 1, 400);
     tableComponent.getHeader().addColumn("Length", 2, 90);
     tableComponent.getHeader().addColumn("Play", 3, 60);
 
 
 
-    // set model on table component
+    // set model on table component to provide data
     tableComponent.setModel(this);
 
     addAndMakeVisible(tableComponent);
@@ -34,17 +38,18 @@ PlaylistComponent::~PlaylistComponent()
 {
 }
 
+// background and placeholders
 void PlaylistComponent::paint (juce::Graphics& g)
 {
     g.fillAll (getLookAndFeel().findColour (juce::ResizableWindow::backgroundColourId));   // clear the background
 
     g.setColour (juce::Colours::grey);
-    g.drawRect (getLocalBounds(), 1);   // draw an outline around the component
+    g.drawRect (getLocalBounds(), 1);   // outline around the component
 
     g.setColour (juce::Colours::white);
     g.setFont (juce::FontOptions (14.0f));
     g.drawText ("PlaylistComponent", getLocalBounds(),
-                juce::Justification::centred, true);   // draw some placeholder text
+                juce::Justification::centred, true);   // placeholder text
 }
 
 void PlaylistComponent::resized()
@@ -54,7 +59,7 @@ void PlaylistComponent::resized()
     tableComponent.setBounds(r);
 }
 
-
+// returns number of rows
 int PlaylistComponent::getNumRows()
 {
     return tracks.size();
@@ -88,9 +93,11 @@ void PlaylistComponent::paintCell(
     const auto& t = tracks[(size_t)rowNumber];
     juce::String text;
 
+    // title col
     if (columnId == 1) {
         text = t.title;
     }
+    // length col
     else if (columnId == 2) 
     {
         text = formatSeconds(t.lengthSeconds);
@@ -104,7 +111,7 @@ void PlaylistComponent::paintCell(
 
 juce::Component* PlaylistComponent::refreshComponentForCell(int rowNumber, int columnId, bool isRowSelected, juce::Component* existingComponentToUpdate)
 {
-    if (columnId == 3)  // play button
+    if (columnId == 3)  // play button (per row)
     {
         struct PlayButton : juce::TextButton { int row = -1; };
         auto* btn = dynamic_cast<PlayButton*>(existingComponentToUpdate);
@@ -192,13 +199,13 @@ void PlaylistComponent::playRow(int row)
 {
     if (row < 0 || row >= (int)tracks.size()) return;
 
-    juce::URL url{ tracks[(size_t)row].file };
-    player.loadURL(url);
-    deckGUI.showWaveForm(url);
-    player.start();
+    juce::URL url{ tracks[(size_t)row].file }; 
+    player.loadURL(url); // load into transport
+    deckGUI.showWaveForm(url); // update ui waveforn
+    player.start(); // start playback
 }
 
-// save user library
+// save user library to json
 void PlaylistComponent::saveLibrary() const
 {
     juce::Array<juce::var> items;

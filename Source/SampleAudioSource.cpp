@@ -3,19 +3,22 @@
 
     SampleAudioSource.cpp
     Created: 27 Aug 2025 3:58:56pm
-    Author:  User
+    Author:  Lena
 
   ==============================================================================
 */
 
 #include <JuceHeader.h>
 #include "SampleAudioSource.h"
+// one-shot sample player that mixes into output buffer
 
+// prepare: store sample rate if needed later
 void SampleAudioSource::prepareToPlay(int, double sampleRate)
 {
     fs = sampleRate;
 }
 
+// clear voices and loaded samples
 void SampleAudioSource::releaseResources()
 {
     const juce::ScopedLock sl(lock);
@@ -23,6 +26,7 @@ void SampleAudioSource::releaseResources()
     samples.clear();
 }
 
+// mix each active voice into output and remove finished voices
 void SampleAudioSource::getNextAudioBlock(const juce::AudioSourceChannelInfo& info)
 {
     auto* out = info.buffer;
@@ -54,7 +58,7 @@ void SampleAudioSource::getNextAudioBlock(const juce::AudioSourceChannelInfo& in
 
         const int toCopy = std::min(remaining, info.numSamples);
 
-        // add all channels
+        // add data to output channel
         for (int ch = 0; ch < outCh; ++ch)
         {
             const float* src = sbuf.getReadPointer(std::min(ch, srcCh - 1), v.pos);
@@ -64,11 +68,13 @@ void SampleAudioSource::getNextAudioBlock(const juce::AudioSourceChannelInfo& in
 
         v.pos += toCopy;
 
+        // remove when sample finishes
         if (v.pos >= sbuf.getNumSamples()) it = voices.erase(it);
         else ++it;
     }
 }
 
+// trigger a one - shot sample by id
 void SampleAudioSource::trigger(const juce::String& id, float gain)
 {
     if (!ensureSampleLoaded(id)) return;
@@ -77,12 +83,13 @@ void SampleAudioSource::trigger(const juce::String& id, float gain)
     auto it = samples.find(id.toStdString());
     if (it == samples.end()) return;
 
-    // cap simultaneous voices to keep
+    // cap simultaneous voices to avoid memory problems
     if (voices.size() > 16) voices.erase(voices.begin());
 
     voices.push_back(Voice{ &it->second, 0, gain });
 }
 
+// ensure a sample with this id is present in cache & try assets / samples
 bool SampleAudioSource::ensureSampleLoaded(const juce::String& id)
 {
     const std::string key = id.toStdString();
@@ -116,6 +123,7 @@ bool SampleAudioSource::ensureSampleLoaded(const juce::String& id)
     return true;
 }
 
+// try to find assets/samples folder near executable or current working directory
 juce::File SampleAudioSource::findSamplesFolder()
 {
     // walk up from exe: Assets/Samples

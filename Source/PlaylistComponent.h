@@ -8,9 +8,6 @@
 class DJAudioPlayer;
 class DeckGUI;
 
-//==============================================================================
-/*
-*/
 class PlaylistComponent  : public juce::Component, 
                            public juce::TableListBoxModel,
                            public juce::Button::Listener
@@ -62,15 +59,18 @@ public:
     // clear playlist
     void clearAll();
 
+
 private:
     juce::TableListBox tableComponent;
 
+    // track object definistion
     struct Track { 
         juce::File file; 
         juce::String title; 
         double lengthSeconds{ 0.0 }; 
     };
 
+    // stores loaded tracks
     std::vector<Track> tracks;
 
     void addTrackFromFile(const juce::File& file);
@@ -87,6 +87,7 @@ private:
 
     // library helper
     juce::File getLibraryFile() const;
+
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (PlaylistComponent)
 };

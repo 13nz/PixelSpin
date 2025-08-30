@@ -3,13 +3,14 @@
 
     PixelKnob.cpp
     Created: 19 Aug 2025 3:48:53pm
-    Author:  User
+    Author:  Lena
 
   ==============================================================================
 */
 
 #include "PixelKnob.h"
-
+// knob rendered from a sequence of png frames
+// supports dragging and mouse wheel
 PixelKnob::PixelKnob(const juce::String& filePrefix)
     : prefix(filePrefix)
 {
@@ -21,11 +22,14 @@ PixelKnob::~PixelKnob() = default;
 
 void PixelKnob::reloadFrames()
 {
+    // reset frames
     frames.clearQuick();
 
+    // looks for assets
     auto folder = findKnobsFolder();
     if (folder.isDirectory())
     {
+        // loads by prefix + suffix
         loadFramesFromFolder(folder);
     }
     else
@@ -47,6 +51,7 @@ void PixelKnob::reloadFrames()
         currentPosition = 0;
     }
 
+    // refresh UI
     repaint();
 }
 
@@ -98,14 +103,17 @@ void PixelKnob::setPosition(int newPosition)
     }
 
     const int old = currentPosition;
+    // clamp to range
     currentPosition = juce::jlimit(0, frames.size() - 1, newPosition);
     if (old != currentPosition)
     {
+        // redraw and notify listeners
         repaint();
         notifyIfChanged(old, currentPosition);
     }
 }
 
+// callback to owner
 void PixelKnob::notifyIfChanged(int oldPos, int newPos)
 {
     if (onValueChange)
@@ -116,6 +124,7 @@ void PixelKnob::paint(juce::Graphics& g)
 {
     auto dest = getLocalBounds();
 
+    // if frames are missing
     if (frames.size() == 0)
     {
         // placeholder: draw a simple knob circle
@@ -143,9 +152,10 @@ void PixelKnob::paint(juce::Graphics& g)
 void PixelKnob::mouseDown(const juce::MouseEvent& e)
 {
     isDragging = true;
-    dragStartY = e.position.getY();
+    dragStartY = e.position.getY(); // starting Y for vertical data
     startPosition = currentPosition;
 
+    // can cycle to next by left click
     if (clickSteps && e.mods.isLeftButtonDown() && e.mods.isAnyModifierKeyDown() == false)
     {
         setPosition(currentPosition + 1);
@@ -164,6 +174,7 @@ void PixelKnob::mouseDrag(const juce::MouseEvent& e)
     if (!dragIncreases)
         dy = -dy;
 
+    // convert pixels to steps
     int deltaSteps = (int)std::floor((dy + (pixelsPerStep * 0.5f)) / pixelsPerStep);
     setPosition(startPosition + deltaSteps);
 }
@@ -177,13 +188,22 @@ void PixelKnob::mouseWheelMove(const juce::MouseEvent&, const juce::MouseWheelDe
 {
     if (frames.size() == 0) return;
 
-    if (wheel.deltaY > 0)      setPosition(currentPosition + 1);
-    else if (wheel.deltaY < 0) setPosition(currentPosition - 1);
+    // up -> increases
+    // down -> decreases
+    if (wheel.deltaY > 0)
+    {
+        setPosition(currentPosition + 1);
+    }
+    else if (wheel.deltaY < 0)
+    {
+        setPosition(currentPosition - 1);
+    }
 }
 
-
+// finds folder where assets are located
 juce::File PixelKnob::findKnobsFolder()
 {
+    // search up from .exe
     juce::File dir = juce::File::getSpecialLocation(juce::File::currentExecutableFile).getParentDirectory();
 
     for (int i = 0; i < 10; ++i)
@@ -194,6 +214,7 @@ juce::File PixelKnob::findKnobsFolder()
         dir = dir.getParentDirectory();
     }
 
+    // fallback: search from source folder
     auto cwd = juce::File::getCurrentWorkingDirectory().getChildFile("Assets").getChildFile("Knobs");
     if (cwd.isDirectory())
         return cwd;

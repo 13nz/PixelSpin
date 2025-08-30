@@ -3,7 +3,7 @@
 
     EffectsDeck.h
     Created: 19 Aug 2025 3:31:42pm
-    Author:  User
+    Author:  Lena
 
   ==============================================================================
 */
@@ -15,9 +15,6 @@
 #include <juce_dsp/juce_dsp.h>
 
 
-//==============================================================================
-/*
-*/
 class EffectsDeck  : public juce::Component
 {
 public:

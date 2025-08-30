@@ -3,7 +3,7 @@
 
     CustomLookAndFeel.cpp
     Created: 17 Aug 2025 4:20:43pm
-    Author:  User
+    Author:  Lena
 
   ==============================================================================
 */
@@ -12,7 +12,6 @@
 #include "CustomLookAndFeel.h"
 #include "Theme.h"
 
-//==============================================================================
 CustomLookAndFeel::CustomLookAndFeel()
 {
     // backgrounds

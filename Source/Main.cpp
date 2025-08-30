@@ -67,11 +67,13 @@ public:
                               DocumentWindow::allButtons)
         {
             auto* mainContent = new MainComponent();
-
+            //=============================== CODE WRITTEN BY ME START ===============================================
             // applly custom look & feel
             setLookAndFeel(&mainContent->custLnF);
 
             setUsingNativeTitleBar(false);
+            //=============================== CODE WRITTEN BY ME END ===============================================
+
             setContentOwned(mainContent, true);
 
            #if JUCE_IOS || JUCE_ANDROID
@@ -84,7 +86,7 @@ public:
 
             setVisible (true);
         }
-
+        //=============================== CODE WRITTEN BY ME START ===============================================
         // custom title bar
         void paintOverChildren(juce::Graphics& g) override
         {
@@ -100,6 +102,8 @@ public:
                 juce::Justification::centredLeft,
                 true);
         }
+        //=============================== CODE WRITTEN BY ME END ===============================================
+
 
         void closeButtonPressed() override
         {

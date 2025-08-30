@@ -3,15 +3,16 @@
 
     PixelPad.cpp
     Created: 27 Aug 2025 3:44:37pm
-    Author:  User
+    Author:  Lena
 
   ==============================================================================
 */
 
 #include "PixelPad.h"
-
+// square pixel-art pad button with default/hover/pressed images and crisp scaling
 juce::File PixelPad::defaultPadsFolder;
 
+// draw the correct image depending on hover / pressed state
 void PixelPad::paintButton(juce::Graphics& g, bool isHover, bool isDown)
 {
     const juce::Image& img = isDown ? imgPressed : (isHover ? imgHover : imgDefault);
@@ -19,6 +20,8 @@ void PixelPad::paintButton(juce::Graphics& g, bool isHover, bool isDown)
         drawCrisp(g, img, getWidth(), getHeight());
 }
 
+
+// set the images (if missing hover/pressed fall back to previous)
 void PixelPad::setImages(juce::Image def, juce::Image hov, juce::Image prs)
 {
     imgDefault = def;
@@ -27,6 +30,7 @@ void PixelPad::setImages(juce::Image def, juce::Image hov, juce::Image prs)
     repaint();
 }
 
+// find and load images by base name and suffixes from the default pads folder
 bool PixelPad::setImagesFromBaseName(const juce::String& base,
     const juce::String& defSuf,
     const juce::String& hovSuf,
@@ -44,11 +48,13 @@ bool PixelPad::setImagesFromBaseName(const juce::String& base,
     return true;
 }
 
+// set a custom default folder
 void PixelPad::setDefaultPadsFolder(const juce::File& folder)
 {
     if (folder.isDirectory()) defaultPadsFolder = folder;
 }
 
+// get or discover the default pads folder (search near exe then cwd)
 juce::File PixelPad::getDefaultPadsFolder()
 {
     if (defaultPadsFolder.isDirectory()) return defaultPadsFolder;
@@ -68,8 +74,10 @@ juce::File PixelPad::getDefaultPadsFolder()
     return {};
 }
 
+// alias for conveniecne
 juce::File PixelPad::findPadsFolder() { return getDefaultPadsFolder(); }
 
+// try to load image file
 juce::Image PixelPad::tryLoad(const juce::File& f)
 {
     if (!f.existsAsFile()) return {};
@@ -77,6 +85,7 @@ juce::Image PixelPad::tryLoad(const juce::File& f)
     return {};
 }
 
+// draw image centered & crisp
 void PixelPad::drawCrisp(juce::Graphics& g, const juce::Image& img, int w, int h)
 {
     if (!img.isValid() || w <= 0 || h <= 0) return;

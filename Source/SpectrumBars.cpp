@@ -3,7 +3,7 @@
 
     SpectrumBars.cpp
     Created: 27 Aug 2025 5:33:54pm
-    Author:  User
+    Author:  Lena
 
   ==============================================================================
 */
@@ -11,25 +11,27 @@
 #include <JuceHeader.h>
 #include "SpectrumBars.h"
 
-//==============================================================================
-// https://juce.com/tutorials/tutorial_spectrum_analyser/
+// https://juce.com/tutorials/tutorial_spectrum_analyser/ <-- documentation used
+
+// spectrum visualizer component using fft to draw vertical bars
+// takes audio input, performs fft, maps magnitudes to bars, and repaints at 60fps
 
 SpectrumBars::SpectrumBars(int order, int numBars)
     : fftOrder(order),
     fftSize(1 << order),
-    bars(juce::jlimit(8, 64, numBars)),
+    bars(juce::jlimit(8, 64, numBars)), // clamp bars 8-64
     fft(order),
     window(fftSize, juce::dsp::WindowingFunction<float>::hann)
 {
     // larger than 1 frame
-    monoFifo.setSize(1, fftSize * 2); 
+    monoFifo.setSize(1, fftSize * 2); // buffer for mono audio data
 
-    fftInput.resize(fftSize, 0.0f);
+    fftInput.resize(fftSize, 0.0f); // fft input buffer
     fftBuffer.resize((size_t)fftSize * 2, 0.0f);
-    mag.resize(fftSize / 2, 0.0f);
+    mag.resize(fftSize / 2, 0.0f); // magnitude after fft
     barLevels.resize((size_t)bars, 0.0f);
 
-    // repaint timer
+    // repaint timer, refresh at 60fps
     startTimerHz(60);
 }
 
@@ -48,6 +50,7 @@ void SpectrumBars::setNumBars(int n)
 
 void SpectrumBars::setDecay(float perSecond)
 {
+    // how quickly bars fall
     decayPerSec = juce::jlimit(0.1f, 30.0f, perSecond);
 }
 
@@ -56,6 +59,7 @@ void SpectrumBars::pushAudioBlock(const juce::AudioBuffer<float>& buffer, int st
     const int chs = buffer.getNumChannels();
     const float* const* chans = buffer.getArrayOfReadPointers();
 
+    // feed audio into fifo as mono
     pushMono(chans, chs, num, start);
     runFFTIfReady();
 }
@@ -74,6 +78,7 @@ void SpectrumBars::pushMono(const float* const* chans, int numChans, int num, in
             s += chans[c][start + i];
         }
 
+        // average channels
         s *= (numChans > 0 ? (1.0f / numChans) : 1.0f);
 
         fifo[fill % monoFifo.getNumSamples()] = s;
@@ -86,6 +91,7 @@ void SpectrumBars::runFFTIfReady()
 {
     // if at least fftSize samples --> FFT on the latest window
     int fill = fifoFill.load(std::memory_order_acquire);
+    // make sure enough samples
     if (fill < fftSize) return;
 
     const int fifoLen = monoFifo.getNumSamples();
@@ -107,13 +113,13 @@ void SpectrumBars::runFFTIfReady()
     // window and forward FFT
     window.multiplyWithWindowingTable(fftInput.data(), fftSize);
 
-    // copy to complex buffer
+    // copy to buffer
     std::fill(fftBuffer.begin(), fftBuffer.end(), 0.0f);
     for (int i = 0; i < fftSize; ++i) fftBuffer[(size_t)i * 2] = fftInput[(size_t)i];
 
     fft.performRealOnlyForwardTransform(fftBuffer.data());
 
-    // magnitude 0..N/2
+    // magnitude 0 - N/2
     for (int i = 0; i < fftSize / 2; ++i)
     {
         const float re = fftBuffer[(size_t)i * 2];
@@ -151,7 +157,7 @@ void SpectrumBars::runFFTIfReady()
 
 void SpectrumBars::timerCallback()
 {
-    // frame decay
+    // apply frame decay
     const float dt = 1.0f / 60.0f;
     const float d = decayPerSec * dt;
     for (auto& v : barLevels)
@@ -183,7 +189,4 @@ void SpectrumBars::paint(juce::Graphics& g)
         g.fillRoundedRectangle({ x + 1.0f, r.getBottom() - bh + 1.0f, bw - 2.0f, bh - 2.0f }, 2.0f);
     }
 
-    // subtle outline
-    //g.setColour(findColour(juce::ListBox::outlineColourId).withAlpha(0.5f));
-    //g.drawRoundedRectangle(r.reduced(0.5f), 3.0f, 1.0f);
 }

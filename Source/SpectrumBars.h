@@ -3,7 +3,7 @@
 
     SpectrumBars.h
     Created: 27 Aug 2025 5:33:54pm
-    Author:  User
+    Author:  Lena
 
   ==============================================================================
 */
@@ -12,8 +12,7 @@
 
 #include <JuceHeader.h>
 
-//==============================================================================
-/* Docs: https://juce.com/tutorials/tutorial_spectrum_analyser/
+/* Docs: https://juce.com/tutorials/tutorial_spectrum_analyser/ <-- documentation used
 */
 class SpectrumBars : public juce::Component, private juce::Timer
 {

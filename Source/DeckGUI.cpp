@@ -13,8 +13,9 @@
 #include "PlaylistComponent.h"
 #include "Theme.h"
 
-
-//==============================================================================
+// UI for each deck
+// waveform, vinyls, knobs, buttons, pads
+// connects to DJAudioPlayer
 DeckGUI::DeckGUI(DJAudioPlayer* _player,
                 juce::AudioFormatManager& formatManagerToUse,
                 juce::AudioThumbnailCache& cacheToUse) 
@@ -232,7 +233,6 @@ void DeckGUI::paint (juce::Graphics& g)
 
 void DeckGUI::resized()
 {
-    using juce::roundToInt;
 
     auto r = getLocalBounds().reduced(8);
 
@@ -243,7 +243,7 @@ void DeckGUI::resized()
     const int btnSz = btnRowH;
 
     // Waveform on top
-    const int waveH = juce::jmax(48, roundToInt(getHeight() * 0.14f));
+    const int waveH = juce::jmax(48, juce::roundToInt(getHeight() * 0.14f));
     waveformDisplay.setBounds(r.removeFromTop(waveH));
 
     // position slider
@@ -260,7 +260,7 @@ void DeckGUI::resized()
     vinylSelect.setBounds(r.removeFromTop(dropH).reduced(2));
 
     // vinyl area with knobs
-    auto vinylArea = r.removeFromTop(roundToInt(getHeight() * 0.55f)).reduced(6);
+    auto vinylArea = r.removeFromTop(juce::roundToInt(getHeight() * 0.55f)).reduced(6);
 
     const int knobSz = 80;
     const int knobColW = knobSz + 2 * knobGap;
@@ -288,7 +288,7 @@ void DeckGUI::resized()
 
     //vertical sliders for vol & speed
     const int padLabelH = 16;                 
-    const int sliderBandH = juce::jmax(120, roundToInt(getHeight() * 0.20f));
+    const int sliderBandH = juce::jmax(120, juce::roundToInt(getHeight() * 0.20f));
     auto sliderBand = r.removeFromTop(sliderBandH).reduced(2);
 
     // Left/right vertical strips for volume/speed
@@ -344,12 +344,23 @@ void DeckGUI::resized()
         kickPad.setBounds(p4);
         drumPad.setBounds(p5);
 
-        // labels
-        scratchLabel.setBounds(p1.withHeight(padLabelH).withY(labelsRow.getY()));
-        vinylGlitchLabel.setBounds(p2.withHeight(padLabelH).withY(labelsRow.getY()));
-        snareLabel.setBounds(p3.withHeight(padLabelH).withY(labelsRow.getY()));
-        kickLabel.setBounds(p4.withHeight(padLabelH).withY(labelsRow.getY()));
-        drumLabel.setBounds(p5.withHeight(padLabelH).withY(labelsRow.getY()));
+        // labels aligned with pads
+        scratchLabel.setBounds(p1.getX(), labelsRow.getY(), p1.getWidth(), padLabelH);
+        scratchLabel.setJustificationType(juce::Justification::centred);
+
+        vinylGlitchLabel.setBounds(p2.getX(), labelsRow.getY(), p2.getWidth(), padLabelH);
+        vinylGlitchLabel.setJustificationType(juce::Justification::centred);
+
+        snareLabel.setBounds(p3.getX(), labelsRow.getY(), p3.getWidth(), padLabelH);
+        snareLabel.setJustificationType(juce::Justification::centred);
+
+        kickLabel.setBounds(p4.getX(), labelsRow.getY(), p4.getWidth(), padLabelH);
+        kickLabel.setJustificationType(juce::Justification::centred);
+
+        drumLabel.setBounds(p5.getX(), labelsRow.getY(), p5.getWidth(), padLabelH);
+        drumLabel.setJustificationType(juce::Justification::centred);
+
+
     }
 
     // gap
@@ -366,7 +377,7 @@ void DeckGUI::resized()
 }
 
 
-
+// buttons event handling
 void DeckGUI::buttonClicked(juce::Button* button)
 {
     if (button == &playButton) { player->start(); }
@@ -429,6 +440,7 @@ bool DeckGUI::isInterestedInFileDrag(const juce::StringArray& files)
     return true;
 }
 
+
 void DeckGUI::filesDropped(const juce::StringArray& files, int x, int y)
 {
     for (juce::String filename : files)
@@ -440,10 +452,12 @@ void DeckGUI::filesDropped(const juce::StringArray& files, int x, int y)
     }
 }
 
+
 void DeckGUI::timerCallback()
 {
     waveformDisplay.setPositionRelative(player->getPositionRelative());
 }
+
 
 void DeckGUI::changeListenerCallback(juce::ChangeBroadcaster* source)
 {
@@ -460,17 +474,21 @@ void DeckGUI::changeListenerCallback(juce::ChangeBroadcaster* source)
     }
 }
 
+
 void DeckGUI::showWaveForm(juce::URL url)
 {
     waveformDisplay.loadURL(url);
 }
 
+
 // vinyl helpers
 void DeckGUI::scanVinylAssets()
 {
+    // clear existing
     vinylNames.clear();
     vinylFiles.clear();
 
+    // find folder
     auto folder = getVinylsFolder();
     if (!folder.isDirectory()) { vinylSelect.clear(); return; }
 
@@ -480,11 +498,13 @@ void DeckGUI::scanVinylAssets()
 
     // loop & add each file
     for (auto& f : all)
+    {
         if (f.getFileExtension().equalsIgnoreCase(".png"))
         {
             vinylFiles.add(f);
             vinylNames.add(f.getFileNameWithoutExtension());
         }
+    }
 
     vinylSelect.clear(juce::dontSendNotification);
     for (int i = 0; i < vinylNames.size(); ++i)
@@ -498,6 +518,7 @@ void DeckGUI::scanVinylAssets()
     }
 }
 
+// finds folder
 juce::File DeckGUI::getVinylsFolder()
 {
     // walk up from the executable looking for Assets/Vinyls

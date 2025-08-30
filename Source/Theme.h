@@ -3,7 +3,7 @@
 
     Theme.h
     Created: 17 Aug 2025 4:23:45pm
-    Author:  User
+    Author:  Lena
 
   ==============================================================================
 */
@@ -23,6 +23,8 @@
 
 #pragma once
 #include <JuceHeader.h>
+
+// https://juce.com/tutorials/tutorial_look_and_feel_customisation/ <-- documentation
 
 namespace Theme {
     // Dark surfaces 

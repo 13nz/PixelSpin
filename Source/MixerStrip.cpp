@@ -3,7 +3,7 @@
 
     MixerStrip.cpp
     Created: 27 Aug 2025 4:26:10pm
-    Author:  User
+    Author:  Lena
 
   ==============================================================================
 */
@@ -11,7 +11,7 @@
 #include <JuceHeader.h>
 #include "MixerStrip.h"
 
-//==============================================================================
+// set title, configure slider, wire callbacks, and add child components
 MixerStrip::MixerStrip()
 {
     // title
@@ -19,13 +19,13 @@ MixerStrip::MixerStrip()
     title.setJustificationType(juce::Justification::centred);
     addAndMakeVisible(title);
 
-    // slider
+    // crossfade slider setup
     crossfader.setSliderStyle(juce::Slider::LinearHorizontal);
     crossfader.setTextBoxStyle(juce::Slider::NoTextBox, false, 0, 0);
     crossfader.setRange(0.0, 1.0, 0.0);
     crossfader.setValue(0.5);
 
-    // event handler
+    // notify when it changes
     crossfader.onValueChange = [this]()
         {
             if (onCrossfadeChanged)
@@ -34,10 +34,11 @@ MixerStrip::MixerStrip()
 
     addAndMakeVisible(crossfader);
 
-
+    // set pixel art images
     btnA.setImagesFromBaseName("A");
     btnB.setImagesFromBaseName("B");
 
+    // fallback text
     btnA.setButtonText("A");
     btnB.setButtonText("B");
 
@@ -58,11 +59,14 @@ MixerStrip::MixerStrip()
     addAndMakeVisible(btnB);
 }
 
+// setter for crossfade
+// synchronous notification
 void MixerStrip::setCrossfade(float x)
 {
     crossfader.setValue(juce::jlimit(0.0, 1.0, (double)x), juce::sendNotificationSync);
 }
 
+// center controls with component
 void MixerStrip::resized()
 {
     auto area = getLocalBounds().reduced(8);

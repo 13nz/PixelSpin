@@ -3,14 +3,14 @@
 
     SampleAudioSource.h
     Created: 27 Aug 2025 3:58:56pm
-    Author:  User
+    Author:  Lena
 
   ==============================================================================
 */
 
 #pragma once
 #include <JuceHeader.h>
-
+// Audio source class for sample playback
 class SampleAudioSource : public juce::AudioSource
 {
 public:

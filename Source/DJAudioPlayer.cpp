@@ -9,6 +9,7 @@
 */
 
 #include "DJAudioPlayer.h"
+// handles resampling, effects, and loading/playing
 
 DJAudioPlayer::DJAudioPlayer(juce::AudioFormatManager& _formatManager) : formatManager(_formatManager)
 {

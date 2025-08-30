@@ -12,7 +12,7 @@
 // avoid circular include errors
 class PlaylistComponent;
 
-//==============================================================================
+
 /*
 */
 class DeckGUI  : public juce::Component, 
@@ -33,8 +33,10 @@ public:
     void paint (juce::Graphics&) override;
     void resized() override;
 
+    // button click event handler
     void buttonClicked(juce::Button* button) override;
 
+    // slider event handler
     void sliderValueChanged(juce::Slider* slider) override;
 
     bool isInterestedInFileDrag(const juce::StringArray& files) override;
@@ -64,16 +66,21 @@ public:
 
 
 private:
+    // sliders
     juce::Slider volSlider;
     juce::Slider speedSlider;
     juce::Slider posSlider;
 
+    // player reference
     DJAudioPlayer* player;
 
+    // waveform display component
     WaveformDisplay waveformDisplay;
 
+    // file chooser
     juce::FileChooser fChooser{ "Select a file..." };
 
+    // playlist reference
     PlaylistComponent* playlist{ nullptr };
 
     // row component for buttons
@@ -94,6 +101,7 @@ private:
     juce::StringArray vinylNames;
     juce::Array<juce::File> vinylFiles;
 
+    // image finding and loading helpers
     void scanVinylAssets();
     static juce::File getVinylsFolder();
     static juce::Image tryLoadImage(const juce::File& f);

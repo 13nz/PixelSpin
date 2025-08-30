@@ -3,7 +3,7 @@
 
     MixerStrip.h
     Created: 27 Aug 2025 4:26:10pm
-    Author:  User
+    Author:  Lena
 
   ==============================================================================
 */
@@ -13,7 +13,6 @@
 #include <JuceHeader.h>
 #include "PixelButton.h"
 
-//==============================================================================
 class MixerStrip : public juce::Component
 {
 public:
@@ -23,8 +22,10 @@ public:
     // crossfader 0 - 1
     void setCrossfade(float x);
 
+    // event handler
     std::function<void(float)> onCrossfadeChanged; 
-    // deck A or B
+
+    // snaps playback to deck A or B
     std::function<void(bool)>  onSnapToDeck;       
 
     void resized() override;

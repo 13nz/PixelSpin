@@ -4,6 +4,7 @@
 #include "EffectsDeck.h"
 #include "MixerStrip.h"
 
+
 class DJAudioPlayer : public juce::AudioSource, public juce::ChangeBroadcaster
 {
 public:
@@ -14,12 +15,16 @@ public:
     void getNextAudioBlock(const juce::AudioSourceChannelInfo& bufferToFill) override;
     void releaseResources() override;
 
+    // loads track
     void loadURL(juce::URL audioURL);
+
+    // setters
     void setGain(double gain);
     void setSpeed(double ratio);
     void setPosition(double posInSecs);
     void setPositionRelative(double pos);
 
+    // playback control
     void start();
     void stop();
 
@@ -32,18 +37,18 @@ public:
     // check if music is playing
     bool isPlaying() const;
 
-    // EFFECTS
+    // -- EFFECTS --
     
-    // reverb
+    // reverb setter
     void setReverbAmount(float wet01) { effects.setReverbAmount(wet01); }
 
-    // chorus
+    // chorus setter
     void setChorusAmount(float amt01) { effects.setChorusAmount(amt01); }
 
-    // compression
+    // compression setter
     void setCompressionAmount(float amt01) { effects.setCompressionAmount(amt01); }
 
-    // delay
+    // delay setter
     void setDelayAmount(float amt01) { effects.setDelayAmount(amt01); }
 
     // exporting methods

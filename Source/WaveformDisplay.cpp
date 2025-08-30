@@ -12,7 +12,6 @@
 #include "WaveformDisplay.h"
 #include "Theme.h"
 
-//==============================================================================
 WaveformDisplay::WaveformDisplay(juce::AudioFormatManager& formatManagerToUse,
                                  juce::AudioThumbnailCache& cacheToUse)
                                  : audioThumb(1000, formatManagerToUse, cacheToUse),

@@ -3,13 +3,14 @@
 
     PixelButton.cpp
     Created: 17 Aug 2025 4:56:24pm
-    Author:  User
+    Author:  Lena
 
   ==============================================================================
 */
 
 #include <JuceHeader.h>
 #include "PixelButton.h"
+
 
 juce::File PixelButton::defaultButtonsFolder; // empty until use
 

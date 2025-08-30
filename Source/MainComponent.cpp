@@ -1,6 +1,5 @@
 ﻿#include "MainComponent.h"
 
-//==============================================================================
 MainComponent::MainComponent()
 {
     // set custom theme
@@ -115,7 +114,6 @@ void MainComponent::releaseResources()
     mixerSource.releaseResources();
 }
 
-//==============================================================================
 void MainComponent::paint (juce::Graphics& g)
 {
     g.fillAll (getLookAndFeel().findColour (juce::ResizableWindow::backgroundColourId));
@@ -156,14 +154,30 @@ void MainComponent::resized()
 void MainComponent::applyCrossfade(float x)
 {
     x = juce::jlimit(0.0f, 1.0f, x);
-    // equal-power (−3 dB center): gA = cos(theta)^2, gB = sin(theta)^2
-    const float theta = x * juce::MathConstants<float>::halfPi; 
-    const float gA = std::cos(theta);
-    const float gB = std::sin(theta);
 
-    player1.setGain(gA);   
-    player2.setGain(gB);  
+    // hard endpoints to guarantee isolation on snaps
+    if (x <= 0.0f + 1e-4f)
+    {
+        player1.setGain(1.0f);
+        player2.setGain(0.0f);
+        return;
+    }
+    if (x >= 1.0f - 1e-4f)
+    {
+        player1.setGain(0.0f);
+        player2.setGain(1.0f);
+        return;
+    }
+
+    // equal power crossfade
+    const float theta = x * juce::MathConstants<float>::halfPi;
+    const float gA = std::cos(theta) * std::cos(theta);
+    const float gB = std::sin(theta) * std::sin(theta);
+
+    player1.setGain(gA);
+    player2.setGain(gB);
 }
+
 
 
 

@@ -3,7 +3,7 @@
 
     PixelKnob.h
     Created: 19 Aug 2025 3:48:53pm
-    Author:  User
+    Author:  Lena
 
   ==============================================================================
 */
@@ -34,6 +34,7 @@ public:
     int getPosition() const noexcept { return currentPosition; }
     void setPosition(int newPosition);                   
 
+    // gets number of frames
     int numFrames() const noexcept { return (int)frames.size(); }
 
     // callback when position changes
@@ -49,6 +50,7 @@ public:
     void paint(juce::Graphics& g) override;
     void resized() override {}
 
+    // mouse event handlers
     void mouseDown(const juce::MouseEvent& e) override;
     void mouseDrag(const juce::MouseEvent& e) override;
     void mouseUp(const juce::MouseEvent& e) override;
