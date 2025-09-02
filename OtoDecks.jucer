@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<JUCERPROJECT id="KyW5tb" name="OtoDecks" projectType="guiapp" useAppConfig="0"
+<JUCERPROJECT id="KyW5tb" name="PixelSpin" projectType="guiapp" useAppConfig="0"
               addUsingNamespaceToJuceHeader="0" jucerFormatVersion="1">
-  <MAINGROUP id="QRBohZ" name="OtoDecks">
+  <MAINGROUP id="QRBohZ" name="PixelSpin">
     <GROUP id="{BE5854E4-E8B7-34AD-0657-467F1C6CC4BF}" name="Source">
       <FILE id="IkiWBZ" name="SpectrumBars.cpp" compile="1" resource="0"
             file="Source/SpectrumBars.cpp"/>
