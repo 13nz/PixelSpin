@@ -96,7 +96,7 @@ public:
 
             // title text
             g.setColour(juce::Colour::fromString("#eac4ae"));
-            g.setFont(juce::Font(16.0f, juce::Font::bold));
+            g.setFont(juce::FontOptions(16.0f, juce::Font::bold));
             g.drawText(getName(),
                 10, 0, getWidth(), 30,
                 juce::Justification::centredLeft,

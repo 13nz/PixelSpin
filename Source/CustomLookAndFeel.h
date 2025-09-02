@@ -1,4 +1,4 @@
-﻿/*
+/*
   ==============================================================================
 
     CustomLookAndFeel.h
@@ -54,7 +54,7 @@ public:
     void setSliderThumbPixels(int px) { sliderThumbPixels = px; }
 
     // draws custom title bar
-    void CustomLookAndFeel::drawDocumentWindowTitleBar(juce::DocumentWindow& window,
+    void drawDocumentWindowTitleBar(juce::DocumentWindow& window,
                                                        juce::Graphics& g,
                                                        int w, int h,
                                                        int titleSpaceX, int titleSpaceW,

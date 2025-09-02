@@ -8,6 +8,9 @@
 
 namespace BinaryData
 {
+    extern const char*   app_icon_icns;
+    const int            app_icon_icnsSize = 549672;
+
     extern const char*   icon_png;
     const int            icon_pngSize = 1596;
 
@@ -15,7 +18,7 @@ namespace BinaryData
     const int            icon_icoSize = 4286;
 
     // Number of elements in the namedResourceList and originalFileNames arrays.
-    const int namedResourceListSize = 2;
+    const int namedResourceListSize = 3;
 
     // Points to the start of a list of resource names.
     extern const char* namedResourceList[];
